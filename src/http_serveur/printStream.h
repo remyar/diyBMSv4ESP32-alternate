@@ -8,16 +8,15 @@
 //                                                                                                //
 //================================================================================================//
 
-#ifndef _BMS_H_
-#define _BMS_H_
+#ifndef _PRINTSTREAM_H_
+#define _PRINTSTREAM_H_
 
 //================================================================================================//
 //                                        FICHIERS INCLUS                                         //
 //================================================================================================//
 #include "../typedefs.h"
-#include "../Low-Level/board.h"
-#include "./PacketRequestGenerator.h"
-#include "./PacketReceiveProcessor.h"
+#include "../settings/settings.h"
+#include "./web_server.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
@@ -42,10 +41,10 @@
 //------------------------------------------------------------------------------------------------//
 //---                                        Fonctions                                         ---//
 //------------------------------------------------------------------------------------------------//
-void BMS_TaskInit(void);
-void BMS_TaskRun(void);
+void PrintStreamCommaBoolean(AsyncResponseStream *response, const char *text, bool boolean);
+void PrintStreamCommaFloat(AsyncResponseStream *response, const char *text, float value);
+void PrintStreamComma(AsyncResponseStream *response, const char *text, uint32_t value);
+void PrintStreamCommaInt16(AsyncResponseStream *response, const char *text, int16_t value);
+void PrintStream(AsyncResponseStream *response, const char *text, uint32_t value);
 
-CellModuleInfo* BMS_GetCMI(uint16_t idx);
-PacketRequestGenerator * BMS_GetPrg(void);
-PacketReceiveProcessor * BMS_GetReceiveProc(void);
 #endif //--- _BOARD_

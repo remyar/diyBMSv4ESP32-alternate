@@ -12,10 +12,7 @@
 //                                        FICHIERS INCLUS                                         //
 //================================================================================================//
 
-#include "./web_server.h"
-#include "./diyBms_server.h"
-#include "./sdCard/sdcard.h"
-#include "./monitor2.json.h"
+#include "./printStream.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
@@ -48,94 +45,54 @@
 //------------------------------------------------------------------------------------------------//
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
-String TemplateProcessor(const String &var)
-{
-    diybms_eeprom_settings *_mysettings = SETTINGS_Get();
-
-    if (var == "LANGUAGE")
-        return String(_mysettings->language.length() > 0 ? _mysettings->language : "en");
-
-    if (var == "graph_voltagehigh")
-        return String(_mysettings->graph_voltagehigh);
-
-    if (var == "graph_voltagelow")
-        return String(_mysettings->graph_voltagelow);
-
-    if (var == "integrity_file_jquery_js")
-        return "sha256-zp0HUArZHsK1JMJwdk7EyaM+eDINjTdOxADt5Ij2JRs=";
-
-    if (var == "noofseriesmodules")
-        return String(maximum_controller_cell_modules);
-
-    if (var == "maxnumberofbanks")
-        return String(maximum_number_of_banks);
-
-    return String();
-}
 
 //------------------------------------------------------------------------------------------------//
 //---                                        Partagees                                         ---//
 //------------------------------------------------------------------------------------------------//
 
 //--------------------------------------------------------------------------------------------------
-// FONCTION    : KEYBOARD_Init
+// FONCTION    : MONITOR2_JSON
 //
 // DESCRIPTION : Initialisation de la carte : GPIO, Clocks, Interruptions...
 //--------------------------------------------------------------------------------------------------
-void DIYBMSServer_Begin(void)
+void PrintStreamCommaBoolean(AsyncResponseStream *response, const char *text, bool boolean)
 {
-    if (SDCARD_GetSD()->cardType() != CARD_NONE)
-    {
-        WEBSERVER_End();
+  response->print(text);
+  if (boolean)
+  {
+    response->print("true");
+  }
+  else
+  {
+    response->print("false");
+  }
+  response->print(',');
+}
 
-        AsyncWebServer *server = WEBSERVER_Get();
+void PrintStreamCommaFloat(AsyncResponseStream *response, const char *text, float value)
+{
+  response->print(text);
+  //Print value to 6 decimal places
+  response->print(value, 6);
+  response->print(',');
+}
 
-        server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->redirect("/default.htm"); });
+void PrintStreamComma(AsyncResponseStream *response, const char *text, uint32_t value)
+{
+  response->print(text);
+  response->print(value);
+  response->print(',');
+}
 
-        server->on("/default.htm", HTTP_GET,
-                   [](AsyncWebServerRequest *request)
-                   {
-                       AsyncWebServerResponse *response = request->beginResponse(*SDCARD_GetSD(), "/default.htm", "text/html", false, TemplateProcessor);
-                       response->addHeader("Cache-Control", "no-store");
-                       request->send(response);
-                   });
+void PrintStreamCommaInt16(AsyncResponseStream *response, const char *text, int16_t value)
+{
+  response->print(text);
+  response->print(value);
+  response->print(',');
+}
 
-        server->on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/style.css"); });
-
-        server->on("/jquery.js", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/jquery.js"); });
-
-        server->on("/wait.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/wait.png"); });
-
-        server->on("/logo.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/logo.png"); });
-
-        server->on("/patron.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/patron.png"); });
-
-        server->on("/warning.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/warning.png"); });
-
-        server->on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/favicon.ico"); });
-
-        server->on("/lang_en.js", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/lang_en.js"); });
-
-        server->on("/echarts.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/echarts.min.js"); });
-
-        server->on("/notify.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/notify.min.js"); });
-
-        server->on("/pagecode.js", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/pagecode.js"); });
-
-        server->on("/monitor2.json", HTTP_GET, MONITOR2_JSON);
-
-        WEBSERVER_Begin();
-    }
+void PrintStream(AsyncResponseStream *response, const char *text, uint32_t value)
+{
+  response->print(text);
+  response->print(value);
 }

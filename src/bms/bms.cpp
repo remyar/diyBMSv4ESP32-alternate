@@ -15,8 +15,6 @@
 #include "./bms.h"
 #include "../settings/settings.h"
 #include <SerialEncoder.h>
-#include "./PacketRequestGenerator.h"
-#include "./PacketReceiveProcessor.h"
 #include "crc16.h"
 
 //================================================================================================//
@@ -187,4 +185,12 @@ void BMS_TaskRun(void)
 CellModuleInfo *BMS_GetCMI(uint16_t idx)
 {
     return &cmi[idx];
+}
+
+PacketRequestGenerator * BMS_GetPrg(void){
+    return &prg;
+}
+
+PacketReceiveProcessor * BMS_GetReceiveProc(void){
+    return &receiveProc;
 }

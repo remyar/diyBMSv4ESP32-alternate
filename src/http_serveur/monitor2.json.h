@@ -8,16 +8,16 @@
 //                                                                                                //
 //================================================================================================//
 
-#ifndef _BMS_H_
-#define _BMS_H_
+#ifndef _MONITOR2_JSON_H_
+#define _MONITOR2_JSON_H_
 
 //================================================================================================//
 //                                        FICHIERS INCLUS                                         //
 //================================================================================================//
 #include "../typedefs.h"
-#include "../Low-Level/board.h"
-#include "./PacketRequestGenerator.h"
-#include "./PacketReceiveProcessor.h"
+#include "../settings/settings.h"
+#include "./web_server.h"
+#include "./rules/Rules.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
@@ -42,10 +42,6 @@
 //------------------------------------------------------------------------------------------------//
 //---                                        Fonctions                                         ---//
 //------------------------------------------------------------------------------------------------//
-void BMS_TaskInit(void);
-void BMS_TaskRun(void);
+void MONITOR2_JSON(AsyncWebServerRequest *request);
 
-CellModuleInfo* BMS_GetCMI(uint16_t idx);
-PacketRequestGenerator * BMS_GetPrg(void);
-PacketReceiveProcessor * BMS_GetReceiveProc(void);
 #endif //--- _BOARD_
