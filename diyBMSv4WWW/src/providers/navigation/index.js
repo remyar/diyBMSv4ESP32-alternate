@@ -21,10 +21,15 @@ function NavigationProvider(props) {
         history.goBack();
     }
 
+    function _getPath(){
+        return history.location.pathname;
+    }
+
     return <ReactNavigationContext.Provider value={{
         navigation: {
             push: _push.bind(this),
             goBack: _goBack.bind(this),
+            getPath : _getPath.bind(this),
         }
     }}>
         {props.children}

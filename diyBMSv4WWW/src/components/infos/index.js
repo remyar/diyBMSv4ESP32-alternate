@@ -5,9 +5,12 @@ import { withNavigation } from '../../providers/navigation';
 import { withStoreProvider } from '../../providers/StoreProvider';
 
 function Infos(props){
-    return <div id="info" className="info">
-            <div id="sent" className="stat"><span className="x t">Packets sent:</span><span className="x v"></span></div>
+    const infosTab = props.infosTab || [];
 
+    return <div id="info" className="info">
+            {infosTab.map(it => {
+                return it;
+            })}
         </div>
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { injectIntl } from 'react-intl';
 
 import { withNavigation } from '../../providers/navigation';
@@ -7,269 +7,125 @@ import { withStoreProvider } from '../../providers/StoreProvider';
 import Infos from '../../components/infos';
 import Graph from '../../components/graph';
 
+import utils from '../../utils';
+
 function Home(props) {
-    const [markLineData,setMarkLineData] = useState([]);
-    const [optionsG1, setOptionsG1] = useState({
-        tooltip: {
-            show: true,
-            axisPointer: {
-                type: 'cross',
-                label: {
-                    backgroundColor: '#6a7985'
-                }
-            }
-        },
-        legend: {
-            show: false
-        },
-        xAxis: [{
-            gridIndex: 0,
-            type: 'category',
-            axisLine: {
-                lineStyle: {
-                    color: '#c1bdbd'
-                }
-            }
-        }, {
-            gridIndex: 1,
-            type: 'category',
-            axisLine: {
-                lineStyle: {
-                    color: '#c1bdbd'
-                }
-            }
-        }],
-        yAxis: [{
-            id: 0,
-            gridIndex: 0,
-            name: 'Volts',
-            type: 'value',
-            min: 2.5,
-            max: 4.5,
-            interval: 0.25,
-            position: 'left',
-            axisLine: {
-                lineStyle: {
-                    color: '#c1bdbd'
-                }
-            },
-            axisLabel: {
-                formatter: function (value, index) {
-                    return value.toFixed(2);
-                }
-            }
-        },
-        {
-            id: 1,
-            gridIndex: 0,
-            name: 'Bypass',
-            type: 'value',
-            min: 0,
-            max: 100,
-            interval: 10,
-            position: 'right',
-            axisLabel: { formatter: '{value}%' },
-            splitLine: { show: false },
-            axisLine: { lineStyle: { type: 'dotted', color: '#c1bdbd' } },
-            axisTick: { show: false }
-        },
-        {
-            id: 2,
-            gridIndex: 1,
-            name: 'Temperature',
-            type: 'value',
-            interval: 10,
-            position: 'left',
-            axisLine: {
-                lineStyle: {
-                    color: '#c1bdbd'
-                }
-            },
-            axisLabel: {
-                formatter: '{value}°C'
-            }
-        }],
-        series: [
-            {
-                xAxisIndex: 0,
-                name: 'Voltage',
-                yAxisIndex: 0,
-                type: 'bar',
-                data: [],
 
-                markLine: {
-                    silent: true,
-                    symbol: 'none',
+    const monitor2 = props.globalState.monitor2 || {};
 
-                    data: markLineData
-                },
-                itemStyle: { color: '#55a1ea', barBorderRadius: [8, 8, 0, 0] },
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideBottom',
-                        distance: 10,
-                        align: 'left',
-                        verticalAlign: 'middle',
-                        rotate: 90,
-                        formatter: '{c}V',
-                        fontSize: 24,
-                        color: '#eeeeee',
-                        fontFamily: 'Fira Code'
-                    }
-                }
-            }, {
-                xAxisIndex: 0,
-                name: 'Min V',
-                yAxisIndex: 0,
-                type: 'line',
-                data: [],
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'bottom',
-                        distance: 5,
-                        formatter: '{c}V',
-                        fontSize: 14,
-                        color: '#eeeeee',
-                        fontFamily: 'Fira Code'
-                    }
-                },
-                symbolSize: 16,
-                symbol: ['circle'],
-                itemStyle: {
-                    normal: {
-                        color: "#c1bdbd",
-                        lineStyle: {
-                            color: 'transparent'
-                        }
-                    }
-                }
+    let infosTab = [];
+
+    if (monitor2.sent && monitor2.sent > 0) {
+        infosTab.push(<div id="sent" className="stat"><span className="x t">Packets sent:</span><span className="x v">{monitor2.sent}</span></div>);
+    }
+    if (monitor2.received && monitor2.received > 0) {
+        infosTab.push(<div id="received" className="stat"><span className="x t">Packets rec'd:</span><span className="x v">{monitor2.received}</span></div>);
+    }
+    if (monitor2.roundtrip && monitor2.roundtrip > 0) {
+        infosTab.push(<div id="roundtrip" className="stat"><span className="x t">Roundtrip (ms):</span><span className="x v">{monitor2.roundtrip}</span></div>);
+    }
+    if (monitor2.uptime && monitor2.uptime > 0) {
+        infosTab.push(<div id="uptime" className="stat"><span className="x t">Uptime:</span><span className="x v">{utils.secondsToHms(monitor2.uptime)}</span></div>);
+    }
+    if (monitor2.can_sent && monitor2.can_sent > 0) {
+        infosTab.push(<div id="cansent" className="stat"><span className="x t">CAN sent:</span><span className="x v">{monitor2.can_sent}</span></div>);
+    }
+    if (monitor2.can_rec && monitor2.can_rec > 0) {
+        infosTab.push(<div id="canrecd" className="stat"><span className="x t">CAN received:</span><span className="x v">{monitor2.can_rec}</span></div>);
+    }
+
+    // Need one color for each pack, could make it colourful I suppose :-)
+    const colours = [
+        '#55a1ea', '#33628f', '#55a1ea', '#33628f',
+        '#55a1ea', '#33628f', '#55a1ea', '#33628f',
+        '#55a1ea', '#33628f', '#55a1ea', '#33628f',
+        '#55a1ea', '#33628f', '#55a1ea', '#33628f',
+    ];
+
+    const red = '#B44247';
+
+    let markLineData = [];
+    let labels = [];
+   // let cells = [];
+    let bank = [];
+    let voltages = [];
+    let voltagesmin = [];
+    let voltagesmax = [];
+    let tempint = [];
+    let tempext = [];
+    let pwm = [];
+
+    let minVoltage = 3.0;
+    let maxVoltage = 4.5;
+
+    let bankNumber = 0;
+    let cellsInBank = 0;
+
+    markLineData.push({ name: 'avg', type: 'average', lineStyle: { color: '#ddd', width: 2, type: 'dotted', opacity: 0.3 }, label: { distance: [10, 0], position: 'start', color: "#eeeeee", textBorderColor: '#313131', textBorderWidth: 2 } });
+    markLineData.push({ name: 'min', type: 'min', lineStyle: { color: '#ddd', width: 2, type: 'dotted', opacity: 0.3 }, label: { distance: [10, 0], position: 'start', color: "#eeeeee", textBorderColor: '#313131', textBorderWidth: 2 } });
+    markLineData.push({ name: 'max', type: 'max', lineStyle: { color: '#ddd', width: 2, type: 'dotted', opacity: 0.3 }, label: { distance: [10, 0], position: 'start', color: "#eeeeee", textBorderColor: '#313131', textBorderWidth: 2 } });
+
+    let xAxis = 0;
+    for (let index = 0; index < monitor2.banks; index++) {
+        markLineData.push({ name: "Bank " + index, xAxis: xAxis, lineStyle: { color: colours[index], width: 4, type: 'dashed', opacity: 0.5 }, label: { show: true, distance: [0, 0], formatter: '{b}', color: '#eeeeee', textBorderColor: colours[index], textBorderWidth: 2 } });
+        xAxis += monitor2.seriesmodules;
+    }
+
+    if (monitor2.voltages) {
+        for (let i = 0; i < monitor2.voltages.length; i++) {
+            labels.push(bankNumber + "/" + i);
+
+            // Make different banks different colours (stripes)
+            var stdcolor = colours[bankNumber];
+            // Red
+            var color = monitor2.bypass[i] == 1 ? red : stdcolor;
+
+            var v = (parseFloat(monitor2.voltages[i]) / 1000.0);
+            voltages.push({ value: v, itemStyle: { color: color } });
+
+            //Auto scale graph is outside of normal bounds
+            if (v > maxVoltage) { maxVoltage = v; }
+            if (v < minVoltage) { minVoltage = v; }
+
+            if (monitor2.minvoltages) {
+                voltagesmin.push((parseFloat(monitor2.minvoltages[i]) / 1000.0));
             }
-            , {
-                xAxisIndex: 0,
-                name: 'Max V',
-                yAxisIndex: 0,
-                type: 'line',
-                data: [],
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'top',
-                        distance: 5,
-                        formatter: '{c}V',
-                        fontSize: 14,
-                        color: '#c1bdbd',
-                        fontFamily: 'Fira Code'
-                    }
-                },
-                symbolSize: 16,
-                symbol: ['arrow'],
-                itemStyle: {
-                    normal: {
-                        color: "#c1bdbd",
-                        lineStyle: {
-                            color: 'transparent'
-                        }
-                    }
-                }
+            if (monitor2.maxvoltages) {
+                voltagesmax.push((parseFloat(monitor2.maxvoltages[i]) / 1000.0));
             }
 
-            , {
-                xAxisIndex: 0,
-                name: 'Bypass',
-                yAxisIndex: 1,
-                type: 'line',
-                data: [],
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'right',
-                        distance: 5,
-                        formatter: '{c}%',
-                        fontSize: 14,
-                        color: '#f0e400',
-                        fontFamily: 'Fira Code'
-                    }
-                },
-                symbolSize: 16,
-                symbol: ['square'],
-                itemStyle: { normal: { color: "#f0e400", lineStyle: { color: 'transparent' } } }
+            bank.push(bankNumber);
+      //      cells.push(i);
+
+
+            cellsInBank++;
+            if (cellsInBank == monitor2.seriesmodules) {
+                cellsInBank = 0;
+                bankNumber++;
             }
 
-            , {
-                xAxisIndex: 1,
-                yAxisIndex: 2,
-                name: 'BypassTemperature',
-                type: 'bar',
-                data: [],
-                itemStyle: {
-                    color: '#55a1ea',
-                    barBorderRadius: [8, 8, 0, 0]
-                },
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideBottom',
-                        distance: 8,
-                        align: 'left',
-                        verticalAlign: 'middle',
-                        rotate: 90,
-                        formatter: '{c}°C',
-                        fontSize: 20,
-                        color: '#eeeeee',
-                        fontFamily: 'Fira Code'
-                    }
-                }
-            }
-
-            , {
-                xAxisIndex: 1,
-                yAxisIndex: 2,
-                name: 'CellTemperature',
-                type: 'bar',
-                data: [],
-                itemStyle: {
-                    color: '#55a1ea',
-                    barBorderRadius: [8, 8, 0, 0]
-                },
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'insideBottom',
-                        distance: 8,
-                        align: 'left',
-                        verticalAlign: 'middle',
-                        rotate: 90,
-                        formatter: '{c}°C',
-                        fontSize: 20,
-                        color: '#eeeeee',
-                        fontFamily: 'Fira Code'
-                    }
-                }
-
-            }
-        ],
-        grid: [
-            {
-                containLabel: false,
-                left: '4%',
-                right: '4%',
-                bottom: '30%'
-
-            }, {
-                containLabel: false,
-                left: '4%',
-                right: '4%',
-                top: '76%'
-            }]
-    });
+            color = monitor2.bypasshot[i] == 1 ? red : stdcolor;
+            tempint.push({ value: monitor2.inttemp[i], itemStyle: { color: color } });
+            tempext.push({ value: (monitor2.exttemp[i] == -40 ? 0 : monitor2.exttemp[i]), itemStyle: { color: stdcolor } });
+            pwm.push({ value: monitor2.bypasspwm[i] == 0 ? null : Math.trunc(monitor2.bypasspwm[i] / 255 * 100) });
+        }
+    }
     return <div>
         <div className="graphs">
-            <Graph id="graph1" options={optionsG1} />
-            <Graph id="graph2" />
+            <Graph id="graph1" 
+                markLine={markLineData} 
+                xAxis={{ data: labels }} 
+                yAxis={[{ gridIndex: 0, min: minVoltage, max: maxVoltage }]}
+                series={[{ name: 'Voltage', data: voltages }
+                        , { name: 'Min V', data: voltagesmin }
+                        , { name: 'Max V', data: voltagesmax }
+                        , { name: 'Bypass', data: pwm }
+                        , { name: 'BypassTemperature', data: tempint }
+                        , { name: 'CellTemperature', data: tempext }]}
+                />
+            {/*<Graph id="graph2" />*/}
         </div>
-        <Infos />
+        <Infos infosTab={infosTab} />
     </div>;
 }
 

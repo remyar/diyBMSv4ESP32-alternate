@@ -1,11 +1,11 @@
 import createAction from '../../middleware/actions';
 
-async function getMonitor2({ getState , extra }) {
+async function getMonitor3({ getState , extra }) {
     let api = extra.api;
     try {
-        let obj = await api.get("monitor2.json");
+        let obj = await api.get("monitor3.json");
         return {
-            monitor2 : obj
+            monitor3 : obj
         };
     }
     catch(err){
@@ -13,4 +13,4 @@ async function getMonitor2({ getState , extra }) {
     }
 }
 
-export default createAction(getMonitor2);
+export default createAction(getMonitor3);

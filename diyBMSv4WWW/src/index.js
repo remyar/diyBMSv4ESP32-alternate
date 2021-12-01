@@ -1,10 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import "@fontsource/fira-code";
+
 import { IntlProvider } from 'react-intl';
 import { MemoryRouter } from "react-router-dom";
 import NavigationProvider from './providers/navigation';
 import StoreProvider from './providers/StoreProvider';
+import { CookiesProvider } from 'react-cookie';
 
 import App from './App';
 import api from './api';
@@ -14,11 +17,11 @@ import localeData from './locales';
 
 // WHITELIST
 const persistConfig = {
-  key: 'diyBMSv4',
-  persist: true,
-  whitelist: [
-    "settings"
-  ]
+    key: 'diyBMSv4',
+    persist: true,
+    whitelist: [
+        "settings"
+    ]
 };
 
 
@@ -26,8 +29,8 @@ const persistConfig = {
 // on different fields on the `navigator` object, so we make sure to account
 // for these different by checking all of them
 const language = (navigator.languages && navigator.languages[0]) ||
-  navigator.language ||
-  navigator.userLanguage;
+    navigator.language ||
+    navigator.userLanguage;
 
 window.userLocale = language;
 
@@ -41,17 +44,17 @@ const messages = localeData[languageWithoutRegionCode] || localeData[language] |
 
 
 ReactDOM.render(
-  <React.StrictMode>
-    <StoreProvider extra={{ api }} persistConfig={persistConfig} globalState={{ settings: { locale: "en" } }}>
-      <MemoryRouter>
-        <NavigationProvider>
-          <IntlProvider locale={language} messages={messages}>
-            <App />
-          </IntlProvider>
-        </NavigationProvider>
-      </MemoryRouter>
-    </StoreProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
+    <React.StrictMode>
+        <StoreProvider extra={{ api }} persistConfig={persistConfig} globalState={{ settings: { locale: "en" } }}>
+            <MemoryRouter>
+                <NavigationProvider>
+                    <IntlProvider locale={language} messages={messages}>
+                        <App/>
+                    </IntlProvider>
+                </NavigationProvider>
+            </MemoryRouter>
+        </StoreProvider>
+    </React.StrictMode>,
+    document.getElementById('root')
 );
 

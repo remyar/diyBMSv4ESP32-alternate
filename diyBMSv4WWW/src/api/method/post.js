@@ -1,38 +1,23 @@
-import 'isomorphic-fetch';
-import STATUS from '../status';
+import axios from 'axios';
 
-export default function post(url, data = undefined) {
+export default function post(url, val, isServiceWorker = false) {
 
-    let headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-    };
+    var bodyFormData = new FormData();
 
-    return fetch(url, {
+    Object.keys(val).map((key)=>{
+        bodyFormData.append(key , val[key]);
+    });
 
-        headers: new Headers(headers),
-        method: 'POST',
-        body: JSON.stringify(data),
-
-    }).then((res) => {
-        if (res.status === STATUS.NO_CONTENT || (res?.headers?.get('Content-Length') === "0")) {
-            return true;
-        } else {
-            return res.json();
-        }
-
-    }).then((res) => {
-
-        if (res.errorCode !== undefined || res.error !== undefined) {
-            res.errorCode = res.errorCode ? res.errorCode : res.error;
-            throw res;
-        } else {
-            return res;
-        }
-
-    }).catch((err) => {
-
-        return Promise.reject(STATUS.mdw(err));
-
+    return axios({
+        method: "post",
+        url: url,
+        data: bodyFormData,
+        headers: { "Content-Type": "multipart/form-data" }
+    })
+    .then(function (response) {
+        return response.data || {};
+    })
+    .catch(function (error) {
+        throw error;
     });
 }
