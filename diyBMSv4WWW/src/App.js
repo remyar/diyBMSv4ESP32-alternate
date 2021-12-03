@@ -13,6 +13,8 @@ import HomePage from './pages/home';
 import ModulesPage from './pages/modules';
 import SettingsPage from './pages/settings';
 import RulesPage from './pages/rules';
+import AboutPage from './pages/about';
+import StoragePage from './pages/storage';
 
 import actionsBms from './actions/bms';
 
@@ -21,6 +23,8 @@ const routes = [
     { path: routeMdw.urlModules(), name: 'modulesPage', Component: ModulesPage },
     { path: routeMdw.urlSettings(), name: 'settingsPage', Component: SettingsPage },
     { path: routeMdw.urlRules(), name: 'rulesPage', Component: RulesPage },
+    { path: routeMdw.urlAbout(), name: 'aboutPage', Component: AboutPage },
+    { path: routeMdw.urlStorage(), name: 'storagePage', Component: StoragePage },
 ]
 
 function App(props) {
@@ -35,9 +39,12 @@ function App(props) {
         props.dispatch(actionsBms.getMonitor2());
         props.dispatch(actionsBms.getMonitor3());
 
+        props.dispatch(actionsBms.getStorage());
+
         const interval = setInterval(() => {
             props.dispatch(actionsBms.getMonitor2());
             props.dispatch(actionsBms.getMonitor3());
+            props.dispatch(actionsBms.getStorage());
         }, 2000);
 
         return () => clearInterval(interval);

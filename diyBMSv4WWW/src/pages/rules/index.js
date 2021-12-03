@@ -7,14 +7,33 @@ import { withStoreProvider } from '../../providers/StoreProvider';
 import actionsBms from '../../actions/bms';
 
 import RelayState from '../../components/relayState';
+import RuleSettings from '../../components/ruleSettings';
 
 function Rules(props) {
 
     const _rules = props.globalState.rules || {};
 
-    const [defaultrelay , setDefaultRelay ] = useState(_rules.relaydefault);
-    const [relaytype , setRelaytype ] = useState(_rules.relaytype);
-    const [rules , setRules ] = useState(_rules.rules);
+    const [defaultrelay, setDefaultRelay] = useState(_rules.relaydefault);
+    const [relaytype, setRelaytype] = useState(_rules.relaytype);
+    const [rules, setRules] = useState(_rules.rules);
+
+    const rulesTab = [
+        { label: "Emergency stop", hidden: true, },
+        { label: "Internal BMS error", hidden: true },
+        { label: "Current monitoring over current (Amps)", min: 0, max: 5000, step: 1 },
+        { label: "Individual cell over voltage (mV)", min: 1800, max: 4500, step: 10 },
+        { label: "Cell under voltage (mV)", min: 1800, max: 4500, step: 10 },
+        { label: "Module over temperature (internal) °C", min: 0, max: 90, step: 1 },
+        { label: "Module under temperature (internal) °C", min: 0, max: 90, step: 1 },
+        { label: "Cell over temperature (external) °C", min: 0, max: 90, step: 1 },
+        { label: "Cell under temperature (external) °C", min: 0, max: 90, step: 1 },
+        { label: "Current monitor over voltage (mV)", min: 1000, step: 100 },
+        { label: "Current monitor under voltage (mV)", min: 1000, step: 100 },
+        { label: "Pack over voltage (mV)", min: 1000, step: 100 },
+        { label: "Pack under voltage (mV)", min: 1000, step: 100 },
+        { label: "Timer 2", min: 0, max: 1440, step: 1 },
+        { label: "Timer 1", min: 0, max: 1440, step: 1 },
+    ];
 
     return <div className="page" id="rulesPage">
         <h1>Rules</h1>
@@ -53,238 +72,76 @@ function Rules(props) {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><label for="rule0value">Emergency stop</label></td>
-                                <td><input type="hidden" name="rule0value" id="rule0value" defaultValue={rules[0].value} /></td>
-                                <td><input type="hidden" name="rule0hysteresis" id="rule0hysteresis" defaultValue={rules[0].hysteresis} /></td>
-                                <td className="relayset">   
-                                    <RelayState ruleId={0} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={0} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={0} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={0} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="rule1value">Internal BMS error</label></td>
-                                <td><input type="hidden" name="rule1value" id="rule1value" defaultValue={rules[1].value} /></td>
-                                <td><input type="hidden" name="rule1hysteresis" id="rule1hysteresis" defaultValue={rules[1].hysteresis} /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={1} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={1} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={1} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={1} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td><label for="rule2value">Current monitoring over current (Amps)</label></td>
-                                <td><input type="number" min="0" max="5000" step="1" name="rule2value" id="rule2value"
-                                    defaultValue={rules[2].value} required="" /></td>
-                                <td><input type="number" min="0" max="5000" step="1" name="rule2hysteresis"
-                                    id="rule2hysteresis" defaultValue={rules[2].hysteresis} required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={2} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={2} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={2} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={2} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td><label for="rule3value">Individual cell over voltage (mV)</label></td>
-                                <td><input type="number" min="1800" max="4500" step="10" name="rule3value"
-                                    id="rule3value" defaultValue={rules[3].value} required="" /></td>
-                                <td><input type="number" min="1800" max="4500" step="10" name="rule3hysteresis"
-                                    id="rule3hysteresis" defaultValue={rules[3].hysteresis} required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={3} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={3} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={3} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={3} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="rule4value">Cell under voltage (mV)</label></td>
-                                <td><input type="number" min="1800" max="4500" step="10" name="rule4value"
-                                    id="rule4value" defaultValue={rules[4].value} required="" /></td>
-                                <td><input type="number" min="1800" max="4500" step="10" name="rule4hysteresis"
-                                    id="rule4hysteresis" defaultValue={rules[4].hysteresis} required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={4} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={4} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={4} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={4} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="rule5value">Module over temperature (internal) &deg;C</label></td>
-                                <td><input type="number" min="0" max="90" step="1" name="rule5value" id="rule5value"
-                                    defaultValue={rules[5].value} required="" /></td>
-                                <td><input type="number" min="0" max="90" step="1" name="rule5hysteresis"
-                                    id="rule5hysteresis" defaultValue={rules[5].hysteresis} required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={5} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={5} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={5} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={5} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="rule6value">Module under temperature (internal) &deg;C</label></td>
-                                <td><input type="number" min="0" max="90" step="1" name="rule6value" id="rule6value"
-                                    defaultValue={rules[6].value} required="" /></td>
-                                <td><input type="number" min="0" max="90" step="1" name="rule6hysteresis"
-                                    id="rule6hysteresis" defaultValue={rules[6].hysteresis} required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={6} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={6} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={6} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={6} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="rule7value">Cell over temperature (external) &deg;C</label></td>
-                                <td><input type="number" min="0" max="90" step="1" name="rule7value" id="rule7value"
-                                    defaultValue={rules[7].value} required="" /></td>
-                                <td><input type="number" min="0" max="90" step="1" name="rule7hysteresis"
-                                    id="rule7hysteresis" defaultValue={rules[7].hysteresis} required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={7} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={7} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={7} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={7} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="rule8value">Cell under temperature (external) &deg;C</label></td>
-                                <td><input type="number" min="0" max="90" step="1" name="rule8value" id="rule8value"
-                                    defaultValue={rules[8].value} required="" /></td>
-                                <td><input type="number" min="0" max="90" step="1" name="rule8hysteresis"
-                                    id="rule8hysteresis" defaultValue={rules[8].hysteresis}  required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={8} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={8} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={8} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={8} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="rule9value">Current monitor over voltage (mV)</label></td>
-                                <td><input type="number" min="1000" max="99999999" step="100" name="rule9value"
-                                    id="rule9value" defaultValue={rules[9].value}  required="" /></td>
-                                <td><input type="number" min="1000" max="99999999" step="100" name="rule9hysteresis"
-                                    id="rule9hysteresis" defaultValue={rules[9].hysteresis} required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={9} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={9} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={9} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={9} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="rule10value">Current monitor under voltage (mV)</label></td>
-                                <td><input type="number" min="1000" max="99999999" step="100" name="rule10value"
-                                    id="rule10value" defaultValue={rules[10].value} required="" /></td>
-                                <td><input type="number" min="1000" max="99999999" step="100" name="rule10hysteresis"
-                                    id="rule10hysteresis" defaultValue={rules[10].hysteresis} required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={10} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={10} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={10} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={10} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td><label for="rule11value">Pack over voltage (mV)</label></td>
-                                <td><input type="number" min="1000" max="99999999" step="100" name="rule11value"
-                                    id="rule11value" defaultValue={rules[11].value} required="" /></td>
-                                <td><input type="number" min="1000" max="99999999" step="100" name="rule11hysteresis"
-                                    id="rule11hysteresis" defaultValue={rules[11].hysteresis} required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={11} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={11} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={11} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={11} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="rule12value">Pack under voltage (mV)</label></td>
-                                <td><input type="number" min="1000" max="99999999" step="100" name="rule12value"
-                                    id="rule12value" defaultValue={rules[12].value} required="" /></td>
-                                <td><input type="number" min="1000" max="99999999" step="100" name="rule12hysteresis"
-                                    id="rule12hysteresis" defaultValue={rules[12].hysteresis} required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={12} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={12} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={12} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={12} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="rule13value">Timer 2</label></td>
-                                <td><input type="number" min="0" max="1440" step="1" name="rule13value" id="rule13value"
-                                    defaultValue={rules[13].value} required="" /></td>
-                                <td><input type="number" min="0" max="1440" step="1" name="rule13hysteresis"
-                                    id="rule13hysteresis" defaultValue={rules[13].hysteresis}  required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={13} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={13} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={13} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={13} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="rule14value">Timer 1</label></td>
-                                <td><input type="number" min="0" max="1440" step="1" name="rule14value" id="rule14value"
-                                    defaultValue={rules[14].value} required="" /></td>
-                                <td><input type="number" min="0" max="1440" step="1" name="rule14hysteresis"
-                                    id="rule14hysteresis" defaultValue={rules[14].hysteresis} required="" /></td>
-                                <td className="relayset">
-                                    <RelayState ruleId={14} relayId={0} rules={rules}/>
-                                    <RelayState ruleId={14} relayId={1} rules={rules}/>
-                                    <RelayState ruleId={14} relayId={2} rules={rules}/>
-                                    <RelayState ruleId={14} relayId={3} rules={rules}/>
-                                </td>
-                            </tr>
+                            {rulesTab.map((_r, idx) => {
+                                return <RuleSettings
+                                    id={idx}
+                                    label={_r.label}
+                                    hidden={_r.hidden && _r.hidden ? true : false}
+                                    min={_r.min}
+                                    max={_r.max}
+                                    step={_r.step}
+                                    rule={rules[idx]}
+                                    onChange={(rule) => {
+                                        rules[idx] = rule;
+                                    }}
+                                />
+                            })}
                             <tr>
                                 <td><label for="defaultvalue">Relay default</label></td>
                                 <td>&nbsp;</td>
                                 <td>&nbsp;</td>
                                 <td className="relayset">
-                                    <select id="defaultrelay1" name="defaultrelay1" defaultValue={(()=>{
+                                    <select id="defaultrelay1" name="defaultrelay1" defaultValue={(() => {
                                         var relay_value = "X";
                                         if (defaultrelay[0] === true) { relay_value = "On"; }
                                         if (defaultrelay[0] === false) { relay_value = "Off"; }
                                         return relay_value;
-                                    })()}>
+                                    })()}
+                                        onChange={(event) => {
+                                            defaultrelay[0] = event.target.value == "On" ? true : false;
+                                            setDefaultRelay(defaultrelay);
+                                        }}
+                                    >
                                         <option>On</option>
                                         <option>Off</option>
                                     </select>
-                                    <select id="defaultrelay2" name="defaultrelay2" defaultValue={(()=>{
+                                    <select id="defaultrelay2" name="defaultrelay2" defaultValue={(() => {
                                         var relay_value = "X";
                                         if (defaultrelay[1] === true) { relay_value = "On"; }
                                         if (defaultrelay[1] === false) { relay_value = "Off"; }
                                         return relay_value;
-                                    })()}>
-                                        <option>On</option>
-                                        <option>Off</option>
+                                    })()}
+                                        onChange={(event) => {
+                                            defaultrelay[1] = event.target.value == "On" ? true : false;
+                                            setDefaultRelay(defaultrelay);
+                                        }}
+                                    >
+                                        <option >On</option>
+                                        <option >Off</option>
                                     </select>
-                                    <select id="defaultrelay3" name="defaultrelay3" defaultValue={(()=>{
+                                    <select id="defaultrelay3" name="defaultrelay3" defaultValue={(() => {
                                         var relay_value = "X";
                                         if (defaultrelay[2] === true) { relay_value = "On"; }
                                         if (defaultrelay[2] === false) { relay_value = "Off"; }
                                         return relay_value;
-                                    })()}>
+                                    })()}
+                                        onChange={(event) => {
+                                            defaultrelay[2] = event.target.value == "On" ? true : false;
+                                            setDefaultRelay(defaultrelay);
+                                        }}>
                                         <option>On</option>
                                         <option>Off</option>
                                     </select>
-                                    <select id="defaultrelay4" name="defaultrelay4" defaultValue={(()=>{
+                                    <select id="defaultrelay4" name="defaultrelay4" defaultValue={(() => {
                                         var relay_value = "X";
                                         if (defaultrelay[3] === true) { relay_value = "On"; }
                                         if (defaultrelay[3] === false) { relay_value = "Off"; }
                                         return relay_value;
-                                    })()}>
+                                    })()}
+                                        onChange={(event) => {
+                                            defaultrelay[3] = event.target.value == "On" ? true : false;
+                                            setDefaultRelay(defaultrelay);
+                                        }}>
                                         <option>On</option>
                                         <option>Off</option>
                                     </select></td>
@@ -294,19 +151,35 @@ function Rules(props) {
                                 <td>&nbsp;</td>
                                 <td>&nbsp;</td>
                                 <td className="relayset">
-                                    <select id="relaytype1" name="relaytype1" defaultValue={relaytype[0]}>
+                                    <select id="relaytype1" name="relaytype1" defaultValue={relaytype[0]}
+                                        onChange={(event) => {
+                                            relaytype[0] = event.target.value;
+                                            setRelaytype(relaytype);
+                                        }}>
                                         <option>Std</option>
                                         <option>Pulse</option>
                                     </select>
-                                    <select id="relaytype2" name="relaytype2" defaultValue={relaytype[1]}>
+                                    <select id="relaytype2" name="relaytype2" defaultValue={relaytype[1]}
+                                        onChange={(event) => {
+                                            relaytype[1] = event.target.value;
+                                            setRelaytype(relaytype);
+                                        }}>
                                         <option>Std</option>
                                         <option>Pulse</option>
                                     </select>
-                                    <select id="relaytype3" name="relaytype3" defaultValue={relaytype[2]}>
+                                    <select id="relaytype3" name="relaytype3" defaultValue={relaytype[2]}
+                                        onChange={(event) => {
+                                            relaytype[2] = event.target.value;
+                                            setRelaytype(relaytype);
+                                        }}>
                                         <option>Std</option>
                                         <option>Pulse</option>
                                     </select>
-                                    <select id="relaytype4" name="relaytype4" defaultValue={relaytype[3]}>
+                                    <select id="relaytype4" name="relaytype4" defaultValue={relaytype[3]}
+                                        onChange={(event) => {
+                                            relaytype[3] = event.target.value;
+                                            setRelaytype(relaytype);
+                                        }}>
                                         <option>Std</option>
                                         <option>Pulse</option>
                                     </select>
@@ -315,8 +188,28 @@ function Rules(props) {
                         </tbody>
                     </table>
                 </div>
-                <button style={{cursor : 'pointer'}} onClick={()=>{
+                <button style={{ cursor: 'pointer' }} onClick={() => {
+                    let obj = {};
+                    rules.forEach((rule , idx) => {
+                        obj["rule" + idx + "value"] = rule.value;
+                        obj["rule" + idx + "hysteresis"] = rule.hysteresis;
+                        rule.relays.forEach((relay , _idx) => {
+                            var relay_value = "X";
+                            if (relay === "On") { relay_value = "On"; }
+                            if (relay === "Off") { relay_value = "Off"; }
+                            obj["rule" + idx + "relay" + (_idx+1)] = relay_value;
+                        });
 
+                        relaytype.forEach((_relaiType , idx) => {
+                            obj["relaytype" + (idx+1)] = _relaiType;
+                        });
+
+                        defaultrelay.forEach((_defaultrelay , idx) => {
+                            obj["defaultrelay" + (idx+1)] = _defaultrelay;
+                        });
+
+                    });
+                    props.dispatch(actionsBms.setRules(obj));
                 }}>Save rules</button>
             </div>
         </div>
