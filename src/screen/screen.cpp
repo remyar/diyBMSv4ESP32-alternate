@@ -44,68 +44,60 @@
 //------------------------------------------------------------------------------------------------//
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
-static e_SCREEN _e_screen = SCREEN_BOOTING;
-static e_SCREEN _old_e_screen = SCREEN_MAX;
-static unsigned long _ms = millis();
+
 //------------------------------------------------------------------------------------------------//
 //---                                        Partagees                                         ---//
 //------------------------------------------------------------------------------------------------//
 
-//--------------------------------------------------------------------------------------------------
-// FONCTION    : KEYBOARD_Init
+//-----------------------------------------------------------------------------
+// FONCTION    :  SCREEN_Init
 //
-// DESCRIPTION : Initialisation de la carte : GPIO, Clocks, Interruptions...
-//--------------------------------------------------------------------------------------------------
-void SCREEN_TaskInit(void)
+// DESCRIPTION :  Initialisation de l'ecran
+//-----------------------------------------------------------------------------
+void SCREEN_Init(void)
 {
-    DISPLAY_Init();
-    _e_screen = SCREEN_BOOTING;
-    _ms = millis();
+    uint8_t idxScreen;
+    /*
+      ctrl.screen = &scr;
+
+      if (swConfError == TRUE)
+         idxScreen = CONF_ERROR_SCR_IDX;
+      else if (IS_DISP_ACTIVE())
+         idxScreen = PRESENT_SCR_IDX;
+      else
+         idxScreen = MEASURES_SCR_IDX;
+
+      CONTROL_LoadScreen(&ctrl, idxScreen);*/
 }
 
-void SCREEN_Change(e_SCREEN _s)
+//--------------------------------------------------------------------------------------------------
+// FONCTION    : SCREEN_TaskInit
+//
+// DESCRIPTION : Initialisation de la tache
+//--------------------------------------------------------------------------------------------------
+bool SCREEN_TaskInit(void)
 {
-    _e_screen = _s;
+    SCREEN_Init();
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+// FONCTION    : SCREEN_TaskUpdate
+//
+// DESCRIPTION : MAJ de la Tache : gestion evenements
+//-----------------------------------------------------------------------------
+bool SCREEN_TaskUpdate(void *p)
+{
+  /*  s_EVENT *e = (s_EVENT *)p;
+
+    SCREEN_Update(&scr, e);
+    SCREEN_Display(&scr);
+    EVENT_None(SCREEN_TASK);*/
+
+    return true;
 }
 
 void SCREEN_TaskRun(void)
 {
-    bool forceRefresh = false;
-    if ((millis() - _ms) > 1000)
-    {
-        forceRefresh = true;
-        if (_e_screen == SCREEN_BOOTING)
-        {
-            SCREEN_Change(SCREEN_HOME);
-        }
-    }
-    if (_old_e_screen != _e_screen)
-    {
-        DISPLAY_FillScreen();
-        forceRefresh = true;
-        _old_e_screen = _e_screen;
-    }
 
-    if (forceRefresh == true)
-    {
-        switch (_e_screen)
-        {
-        case (SCREEN_BOOTING):
-        {
-            DISPLAY_Booting();
-            break;
-        }
-        case (SCREEN_HOME):
-        {
-            DISPLAY_Voltage();
-            break;
-        }
-        default:
-        {
-            break;
-        }
-        }
-
-        _ms = millis();
-    }
 }

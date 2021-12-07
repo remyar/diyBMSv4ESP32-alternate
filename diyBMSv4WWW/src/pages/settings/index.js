@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { injectIntl } from 'react-intl';
+import localeData from '../../locales';
 
 import { withNavigation } from '../../providers/navigation';
 import { withStoreProvider } from '../../providers/StoreProvider';
@@ -10,25 +11,31 @@ import BankSettings from '../../components/bankSettings';
 import ResetCounter from '../../components/resetCounter';
 import RestartController from '../../components/restartController';
 import NtpSettings from '../../components/ntpSettings';
+import { intlFormat } from 'date-fns';
 
 function Settings(props) {
 
     const settings = props.globalState.settings || {};
+
+    const [Language, setLanguage] = useState(document.documentElement.lang);
+    const [VoltageHigh, setVoltageHigh] = useState(settings.VoltageHigh);
+    const [VoltageLow, setVoltageLow] = useState(settings.VoltageLow);
 
     return <div>
 
         <BankSettings settings />
 
         <NtpSettings settings />
-        
+
         <div className="region">
             <h2>Display Settings</h2>
             <div id="form">
-
                 <div className="settings">
                     <div>
                         <label for="Language">Language</label>
-                        <select name="Language" id="Language">
+                        <select name="Language" id="Language" defaultValue={Language} onChange={(event) => {
+                            setLanguage(event.target.value);
+                        }}>
                             <option value="en">English</option>
                             <option value="es">Spanish</option>
                             <option value="pt">Portuguese</option>
@@ -42,7 +49,9 @@ function Settings(props) {
 
                 <div>
                     <label for="VoltageHigh">Graph voltage scale (high)</label>
-                    <select name="VoltageHigh" id="VoltageHigh">
+                    <select name="VoltageHigh" id="VoltageHigh" defaultValue={VoltageHigh} onChange={(event) => {
+                        setVoltageHigh(event.target.value);
+                    }}>
                         <option>4.50</option>
                         <option>4.25</option>
                         <option>4.00</option>
@@ -59,7 +68,9 @@ function Settings(props) {
 
                 <div>
                     <label for="VoltageLow">Graph voltage scale (low)</label>
-                    <select name="VoltageLow" id="VoltageLow">
+                    <select name="VoltageLow" id="VoltageLow" defaultValue={VoltageLow} onChange={(event) => {
+                        setVoltageLow(event.target.value);
+                    }}>
                         <option>4.50</option>
                         <option>4.25</option>
                         <option>4.00</option>
@@ -80,7 +91,13 @@ function Settings(props) {
                 </div>
 
                 <button style={{ sursor: 'pointer' }} onClick={() => {
-
+                    props.dispatch(actionsBms.setDisplaySettings({
+                        Language,
+                        VoltageHigh,
+                        VoltageLow
+                    })).then(()=>{
+                        document.documentElement.lang = Language;
+                    })
                 }}>Save display settings</button>
             </div>
         </div>

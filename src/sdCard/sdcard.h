@@ -43,5 +43,6 @@
 //---                                        Fonctions                                         ---//
 //------------------------------------------------------------------------------------------------//
 void SDCARD_TaskInit(void);
+void SDCARD_TaskRun(void);
 SDFS* SDCARD_GetSD(void);
 #endif //--- _BOARD_

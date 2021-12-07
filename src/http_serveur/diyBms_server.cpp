@@ -16,6 +16,11 @@
 #include "./diyBms_server.h"
 #include "./sdCard/sdcard.h"
 #include "./monitor2.json.h"
+#include "./monitor3.json.h"
+#include "./modules.json.h"
+#include "./storage.json.h"
+#include "./settings.json.h"
+#include "./rules.json.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
@@ -36,6 +41,25 @@
 //------------------------------------------------------------------------------------------------//
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
+const char index_html[] PROGMEM = R"rawliteral(
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+</head>
+<body>
+  <p><h1>File Upload</h1></p>
+  <p>Free Storage: %FREESPIFFS% | Used Storage: %USEDSPIFFS% | Total Storage: %TOTALSPIFFS%</p>
+  <form method="POST" action="/upload" enctype="multipart/form-data"><input type="file" name="data"/><input type="submit" name="upload" value="Upload" title="Upload File"></form>
+  <p>After clicking upload it will take some time for the file to firstly upload and then be written to SPIFFS, there is no indicator that the upload began.  Please be patient.</p>
+  <p>Once uploaded the page will refresh and the newly uploaded file will appear in the file list.</p>
+  <p>If a file does not appear, it will be because the file was too big, or had unusual characters in the file name (like spaces).</p>
+  <p>You can see the progress of the upload by watching the serial output.</p>
+  <p>%FILELIST%</p>
+</body>
+</html>
+)rawliteral";
 
 //------------------------------------------------------------------------------------------------//
 //---                                        Partagees                                         ---//
@@ -48,6 +72,88 @@
 //------------------------------------------------------------------------------------------------//
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
+// Make size of files human readable
+// source: https://github.com/CelliesProjects/minimalUploadAuthESP32
+String humanReadableSize(const size_t bytes)
+{
+    if (bytes < 1024)
+        return String(bytes) + " B";
+    else if (bytes < (1024 * 1024))
+        return String(bytes / 1024.0) + " KB";
+    else if (bytes < (1024 * 1024 * 1024))
+        return String(bytes / 1024.0 / 1024.0) + " MB";
+    else
+        return String(bytes / 1024.0 / 1024.0 / 1024.0) + " GB";
+}
+
+// list all of the files, if ishtml=true, return html rather than simple text
+String listFiles(bool ishtml)
+{
+    String returnText = "";
+    Serial.println("Listing files stored on SPIFFS");
+    File root = SDCARD_GetSD()->open("/");
+    File foundfile = root.openNextFile();
+    if (ishtml)
+    {
+        returnText += "<table><tr><th align='left'>Name</th><th align='left'>Size</th></tr>";
+    }
+    while (foundfile)
+    {
+        if (ishtml)
+        {
+            returnText += "<tr align='left'><td>" + String(foundfile.name()) + "</td><td>" + humanReadableSize(foundfile.size()) + "</td></tr>";
+        }
+        else
+        {
+            returnText += "File: " + String(foundfile.name()) + "\n";
+        }
+        foundfile = root.openNextFile();
+    }
+    if (ishtml)
+    {
+        returnText += "</table>";
+    }
+    root.close();
+    foundfile.close();
+    return returnText;
+}
+
+// handles uploads
+void handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
+{
+    String logmessage = "Client:" + request->client()->remoteIP().toString() + " " + request->url();
+    Serial.println(logmessage);
+
+    if (!index)
+    {
+        logmessage = "Upload Start: " + String(filename);
+        // open the file on first call and store the file handle in the request object
+        request->_tempFile = SDCARD_GetSD()->open("/" + filename, "w");
+        Serial.println(logmessage);
+    }
+
+    if (len)
+    {
+        // stream the incoming chunk to the opened file
+        request->_tempFile.write(data, len);
+        logmessage = "Writing file: " + String(filename) + " index=" + String(index) + " len=" + String(len);
+        Serial.println(logmessage);
+    }
+
+    if (final)
+    {
+        logmessage = "Upload Complete: " + String(filename) + ",size: " + String(index + len);
+        // close the file handle as the upload is now done
+        request->_tempFile.close();
+        Serial.println(logmessage);
+
+        SDCARD_GetSD()->rename("/" + String(filename), String("/extract.tar"));
+
+        // mount spiffs (or any other filesystem)
+        request->redirect("/");
+    }
+}
+
 String TemplateProcessor(const String &var)
 {
     diybms_eeprom_settings *_mysettings = SETTINGS_Get();
@@ -70,7 +176,80 @@ String TemplateProcessor(const String &var)
     if (var == "maxnumberofbanks")
         return String(maximum_number_of_banks);
 
+    if (var == "FILELIST")
+    {
+        return listFiles(true);
+    }
+    if (var == "FREESPIFFS")
+    {
+        return humanReadableSize((SDCARD_GetSD()->totalBytes() - SDCARD_GetSD()->usedBytes()));
+    }
+
+    if (var == "USEDSPIFFS")
+    {
+        return humanReadableSize(SDCARD_GetSD()->usedBytes());
+    }
+
+    if (var == "TOTALSPIFFS")
+    {
+        return humanReadableSize(SDCARD_GetSD()->totalBytes());
+    }
+
     return String();
+}
+
+void SendSuccess(AsyncWebServerRequest *request)
+{
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  StaticJsonDocument<100> doc;
+  doc["success"] = true;
+  serializeJson(doc, *response);
+  request->send(response);
+}
+
+void SendFailure(AsyncWebServerRequest *request)
+{
+  request->send(500, "text/plain", "Failed");
+}
+
+void saveBankConfiguration(AsyncWebServerRequest *request)
+{
+    diybms_eeprom_settings *_mysettings = SETTINGS_Get();
+    uint8_t totalSeriesModules = 1;
+    uint8_t totalBanks = 1;
+    uint16_t baudrate = COMMS_BAUD_RATE;
+
+    if (request->hasParam("totalSeriesModules", true))
+    {
+        AsyncWebParameter *p1 = request->getParam("totalSeriesModules", true);
+        totalSeriesModules = p1->value().toInt();
+    }
+
+    if (request->hasParam("totalBanks", true))
+    {
+        AsyncWebParameter *p1 = request->getParam("totalBanks", true);
+        totalBanks = p1->value().toInt();
+    }
+
+    if (request->hasParam("baudrate", true))
+    {
+        AsyncWebParameter *p1 = request->getParam("baudrate", true);
+        baudrate = p1->value().toInt();
+    }
+
+    if (totalSeriesModules * totalBanks <= maximum_controller_cell_modules)
+    {
+        _mysettings->totalNumberOfSeriesModules = totalSeriesModules;
+        _mysettings->totalNumberOfBanks = totalBanks;
+        _mysettings->baudRate = baudrate;
+        SETTINGS_Save();
+
+        SendSuccess(request);
+    }
+    else
+    {
+        SendFailure(request);
+    }
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -91,51 +270,37 @@ void DIYBMSServer_Begin(void)
         AsyncWebServer *server = WEBSERVER_Get();
 
         server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->redirect("/default.htm"); });
+                   { request->redirect("/index.html"); });
 
-        server->on("/default.htm", HTTP_GET,
+        server->on("/index.htm", HTTP_GET, [](AsyncWebServerRequest *request)
+                   { request->redirect("/index.html"); });
+
+        server->serveStatic("/", *SDCARD_GetSD(), "/");
+
+        server->on("/upload", HTTP_GET,
                    [](AsyncWebServerRequest *request)
                    {
-                       AsyncWebServerResponse *response = request->beginResponse(*SDCARD_GetSD(), "/default.htm", "text/html", false, TemplateProcessor);
-                       response->addHeader("Cache-Control", "no-store");
-                       request->send(response);
+                       String logmessage = "Client:" + request->client()->remoteIP().toString() + +" " + request->url();
+                       Serial.println(logmessage);
+                       request->send_P(200, "text/html", index_html, TemplateProcessor);
                    });
 
-        server->on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/style.css"); });
-
-        server->on("/jquery.js", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/jquery.js"); });
-
-        server->on("/wait.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/wait.png"); });
-
-        server->on("/logo.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/logo.png"); });
-
-        server->on("/patron.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/patron.png"); });
-
-        server->on("/warning.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/warning.png"); });
-
-        server->on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/favicon.ico"); });
-
-        server->on("/lang_en.js", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/lang_en.js"); });
-
-        server->on("/echarts.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/echarts.min.js"); });
-
-        server->on("/notify.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/notify.min.js"); });
-
-        server->on("/pagecode.js", HTTP_GET, [](AsyncWebServerRequest *request)
-                   { request->send(*SDCARD_GetSD(), "/pagecode.js"); });
+        server->on(
+            "/upload", HTTP_POST,
+            [](AsyncWebServerRequest *request)
+            {
+                request->send(200);
+            },
+            handleUpload);
 
         server->on("/monitor2.json", HTTP_GET, MONITOR2_JSON);
+        server->on("/monitor3.json", HTTP_GET, MONITOR3_JSON);
+        server->on("/modules.json", HTTP_GET, MODULES_JSON);
+        server->on("/storage.json", HTTP_GET, STORAGE_JSON);
+        server->on("/settings.json", HTTP_GET, SETTINGS_JSON);
+        server->on("/rules.json", HTTP_GET, RULES_JSON);
 
+        server->on("/savebankconfig.json", HTTP_POST, saveBankConfiguration);
         WEBSERVER_Begin();
     }
 }

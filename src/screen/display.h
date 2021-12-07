@@ -44,5 +44,6 @@ void DISPLAY_Init(void);
 void DISPLAY_FillScreen(void);
 void DISPLAY_Booting(void);
 void DISPLAY_Voltage(void);
+void DISPLAY_WifiDetails(void);
 
 #endif //--- _BOARD_

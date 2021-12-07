@@ -145,9 +145,9 @@ void MONITOR2_JSON(AsyncWebServerRequest *request)
         if (i)
             response->print(comma);
 
-        if (cmi[i].valid)
+        if (BMS_GetCMI(i)->valid)
         {
-            response->print(cmi[i].voltagemV);
+            response->print(BMS_GetCMI(i)->voltagemV);
         }
         else
         {
@@ -165,9 +165,9 @@ void MONITOR2_JSON(AsyncWebServerRequest *request)
         if (i)
             response->print(comma);
 
-        if (cmi[i].valid)
+        if (BMS_GetCMI(i)->valid)
         {
-            response->print(cmi[i].voltagemVMin);
+            response->print(BMS_GetCMI(i)->voltagemVMin);
         }
         else
         {
@@ -187,9 +187,9 @@ void MONITOR2_JSON(AsyncWebServerRequest *request)
         if (i)
             response->print(comma);
 
-        if (cmi[i].valid)
+        if (BMS_GetCMI(i)->valid)
         {
-            response->print(cmi[i].voltagemVMax);
+            response->print(BMS_GetCMI(i)->voltagemVMax);
         }
         else
         {
@@ -210,9 +210,9 @@ void MONITOR2_JSON(AsyncWebServerRequest *request)
         if (i)
             response->print(comma);
 
-        if (cmi[i].valid && cmi[i].internalTemp != -40)
+        if (BMS_GetCMI(i)->valid && BMS_GetCMI(i)->internalTemp != -40)
         {
-            response->print(cmi[i].internalTemp);
+            response->print(BMS_GetCMI(i)->internalTemp);
         }
         else
         {
@@ -233,9 +233,9 @@ void MONITOR2_JSON(AsyncWebServerRequest *request)
         if (i)
             response->print(comma);
 
-        if (cmi[i].valid && cmi[i].externalTemp != -40)
+        if (BMS_GetCMI(i)->valid && BMS_GetCMI(i)->externalTemp != -40)
         {
-            response->print(cmi[i].externalTemp);
+            response->print(BMS_GetCMI(i)->externalTemp);
         }
         else
         {
@@ -256,7 +256,7 @@ void MONITOR2_JSON(AsyncWebServerRequest *request)
         if (i)
             response->print(comma);
 
-        if (cmi[i].valid && cmi[i].inBypass)
+        if (BMS_GetCMI(i)->valid && BMS_GetCMI(i)->inBypass)
         {
             response->print('1');
         }
@@ -265,6 +265,109 @@ void MONITOR2_JSON(AsyncWebServerRequest *request)
             response->print('0');
         }
     }
+    response->print("]");
+    response->print(comma);
+
+    //bypasshot
+  response->print(F("\"bypasshot\":["));
+
+  for (uint8_t i = 0; i < totalModules; i++)
+  {
+    //Comma if not zero
+    if (i)
+      response->print(comma);
+
+    if (BMS_GetCMI(i)->valid && BMS_GetCMI(i)->bypassOverTemp)
+    {
+      response->print('1');
+    }
+    else
+    {
+      response->print('0');
+    }
+  }
+  response->print(']');
+
+  response->print(comma);
+
+  //bypasspwm
+  response->print(F("\"bypasspwm\":["));
+
+  for (uint8_t i = 0; i < totalModules; i++)
+  {
+    //Comma if not zero
+    if (i)
+      response->print(comma);
+
+    if (BMS_GetCMI(i)->valid && BMS_GetCMI(i)->inBypass)
+    {
+      response->print(BMS_GetCMI(i)->PWMValue);
+    }
+    else
+    {
+      response->print('0');
+    }
+  }
+  response->print(']');
+
+/*  response->print(comma);
+
+
+  //bypasspwm
+  response->print(F("\"bankv\":["));
+
+  for (uint8_t i = 0; i < _mysettings->totalNumberOfBanks; i++)
+  {
+    //Comma if not zero
+    if (i)
+      response->print(comma);
+
+    response->print(_rules->packvoltage[i]);
+  }
+  response->print("]");
+
+  response->print(comma);
+
+  //bypasspwm
+  response->print(F("\"voltrange\":["));
+
+  for (uint8_t i = 0; i < _mysettings->totalNumberOfBanks; i++)
+  {
+    //Comma if not zero
+    if (i)
+      response->print(comma);
+
+    response->print(_rules->VoltageRangeInBank(i));
+  }
+  response->print("]");
+
+  response->print(comma);
+  response->print(F("\"current\":["));
+  if (_mysettings->currentMonitoringEnabled && currentMonitor.validReadings)
+  {
+    //Output current monitor values, this is inside an array, so could be more than 1
+    response->print(F("{\"c\":"));
+    response->print(currentMonitor.modbus.current, 4);
+    response->print(F(",\"v\":"));
+    response->print(currentMonitor.modbus.voltage, 4);
+    response->print(F(",\"mahout\":"));
+    response->print(currentMonitor.modbus.milliamphour_out);
+    response->print(F(",\"mahin\":"));
+    response->print(currentMonitor.modbus.milliamphour_in);
+    response->print(F(",\"p\":"));
+    response->print(currentMonitor.modbus.power, 2);
+    response->print(F(",\"soc\":"));
+    response->print(currentMonitor.stateofcharge, 2);
+
+    response->print("}");
+  }
+  else
+  {
+    response->print(null);
+  }
+
+  response->print("]");
+*/
     response->print("}");
 
     request->send(response);

@@ -12,6 +12,12 @@ import identifyModule from "./identifyModule";
 import setNtpSettings from "./set.ntpSettings";
 import getRules from "./get.rules";
 import setRules from "./set.rules";
+import setStorage from "./set.storage";
+import setSdUnmount from "./set.sd.unmount";
+import setSdMount from "./set.sd.mount";
+import setSaveWifi from "./set.save.wifi";
+import setSaveConfig from "./set.save.config";
+import setDisplaySettings from './set.display.settings';
 
 export default {
     getMonitor2,
@@ -27,5 +33,11 @@ export default {
     setModuleSettings,
     setNtpSettings,
     getRules,
-    setRules
+    setRules,
+    setStorage,
+    setSdUnmount,
+    setSdMount,
+    setSaveWifi,
+    setSaveConfig,
+    setDisplaySettings
 }

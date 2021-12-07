@@ -88,6 +88,6 @@ void BOARD_Init(void)
 
     SERIAL_Init();
 
-    WIFI_Init();
+  //  WIFI_Init();
 
 }

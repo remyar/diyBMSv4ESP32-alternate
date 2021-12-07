@@ -7,8 +7,14 @@ import enDatepicker from 'date-fns/esm/locale/en-US';
 import esDatepicker from 'date-fns/esm/locale/es';
 import itDatepicker from 'date-fns/esm/locale/it';
 
+import de from './de.json';
 import en from './en.json';
+import es from './es.json';
 import fr from './fr.json';
+import hr from './hr.json';
+import nl from './nl.json';
+import pt from './pt.json';
+import ru from './ru.json';
 
 let actualLocale = 'en';
 
@@ -18,8 +24,14 @@ let DatePickerLang = [
 ];
 
 const data = [
-    { language: "French", code: "fr" },
+    { language: "German", code: "de" },
     { language: "English", code: "en" },
+    { language: "Spanish", code: "es" },
+    { language: "French", code: "fr" },
+    { language: "Croatian", code: "hr" },
+    { language: "Dutch", code: "nl" },
+    { language: "Portuguese", code: "pt" },
+    { language: "Russian", code: "ru" },
 ]
 
 function setLanguage(language) {
@@ -46,6 +58,12 @@ export default {
     getLocale,
     setLanguage,
     getLanguages,
+    de,
     en,
+    es,
     fr,
+    hr,
+    nl,
+    pt,
+    ru
 };

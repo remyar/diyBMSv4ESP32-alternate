@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.7.0",
+    "@emotion/styled": "^11.6.0",
     "@fontsource/fira-code": "^4.5.2",
+    "@mui/material": "^5.2.2",
     "@testing-library/jest-dom": "^5.15.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
@@ -12,6 +15,7 @@
     "echarts": "^5.2.2",
     "echarts-for-react": "^3.0.2",
     "isomorphic-fetch": "^3.0.0",
+    "notistack": "^2.0.3",
     "react": "^17.0.2",
     "react-datepicker": "^4.1.1",
     "react-dom": "^17.0.2",
@@ -32,7 +36,7 @@
       "react-app/jest"
     ]
   },
-  "proxy": "http://192.168.137.129/",
+  "proxy": "http://192.168.137.138/",
   "browserslist": {
     "production": [
       ">0.2%",

@@ -68,3 +68,13 @@ uint16_t SERIAL_Available(void){
 uint8_t SERIAL_Getc(void){
     return Serial.read();
 }
+
+uint16_t SERIAL_PrintString(String str){
+    Serial.print(str);
+    return str.length();
+}
+
+uint16_t SERIAL_PrintC(char c){
+    Serial.print(c);
+    return 1;
+}

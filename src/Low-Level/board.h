@@ -33,9 +33,9 @@
 
 #define GPIO_PIN_SDCARD_CHIPSELECT  5
 
-#define DEBUG_WIFI 1
-#define DEBUG_MQTT 1
-#define DEBUG_SD    1
+#define DEBUG_WIFI 0
+#define DEBUG_MQTT 0
+#define DEBUG_SD   0
 
 //================================================================================================//
 //                                          ENUMERATIONS                                          //

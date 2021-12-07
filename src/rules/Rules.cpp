@@ -84,7 +84,6 @@ void ProcessCell(uint8_t bank, uint8_t cellNumber, CellModuleInfo *c)
     }
 
     rules.packvoltage[bank] += c->voltagemV;
-    Serial.println(cmi->voltagemV);
 
     //If the voltage of the module is zero, we probably haven't requested it yet (which happens during power up)
     //so keep count so we don't accidentally trigger rules.
@@ -213,7 +212,6 @@ void RULES_TaskRun(void)
                 }
                 if (cmi->inBypass)
                 {
-                    Serial.println("rules.numberOfBalancingModules");
                     rules.numberOfBalancingModules++;
                 }
                 if (BMS_GetCMI(0)->settingsCached && cmi->CodeVersionNumber != BMS_GetCMI(0)->CodeVersionNumber)

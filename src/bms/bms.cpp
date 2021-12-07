@@ -101,8 +101,8 @@ void BMS_TaskInit(void)
     SERIAL_DATA.begin(9600, SERIAL_8N1, 2, 32); // Serial for comms to modules
 
     myPacketSerial.begin(&SERIAL_DATA, &onPacketReceived, sizeof(PacketStruct), SerialPacketReceiveBuffer, sizeof(SerialPacketReceiveBuffer));
-    _ms = millis();
-    _ms2 = millis();
+    _ms = millis() - 5000;
+    _ms2 = millis() - 5000;
 }
 
 void BMS_TaskRun(void)

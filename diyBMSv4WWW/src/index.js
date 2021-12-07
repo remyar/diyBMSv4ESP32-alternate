@@ -7,7 +7,7 @@ import { IntlProvider } from 'react-intl';
 import { MemoryRouter } from "react-router-dom";
 import NavigationProvider from './providers/navigation';
 import StoreProvider from './providers/StoreProvider';
-import { CookiesProvider } from 'react-cookie';
+import SnackBarGenerator from './providers/snackBar';
 
 import App from './App';
 import api from './api';
@@ -28,14 +28,16 @@ const persistConfig = {
 // Define user's language. Different browsers have the user locale defined
 // on different fields on the `navigator` object, so we make sure to account
 // for these different by checking all of them
-const language = (navigator.languages && navigator.languages[0]) ||
+const language = document.documentElement.lang != "%LANGUAGE%" ? document.documentElement.lang : ((navigator.languages && navigator.languages[0]) ||
     navigator.language ||
-    navigator.userLanguage;
+    navigator.userLanguage);
 
 window.userLocale = language;
 
 // Split locales with a region code
 let languageWithoutRegionCode = language.toLowerCase().split(/[_-]+/)[0];
+
+document.documentElement.lang = languageWithoutRegionCode;
 
 window.userLocaleWithoutRegionCode = languageWithoutRegionCode;
 localeData.setLocale(languageWithoutRegionCode);
@@ -49,7 +51,9 @@ ReactDOM.render(
             <MemoryRouter>
                 <NavigationProvider>
                     <IntlProvider locale={language} messages={messages}>
-                        <App/>
+                        <SnackBarGenerator>
+                            <App />
+                        </SnackBarGenerator>
                     </IntlProvider>
                 </NavigationProvider>
             </MemoryRouter>

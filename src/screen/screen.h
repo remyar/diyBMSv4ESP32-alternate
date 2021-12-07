@@ -44,7 +44,8 @@ typedef enum {
 //------------------------------------------------------------------------------------------------//
 //---                                        Fonctions                                         ---//
 //------------------------------------------------------------------------------------------------//
-void SCREEN_TaskInit(void);
+bool SCREEN_TaskInit(void);
+bool SCREEN_TaskUpdate(void *p);
 void SCREEN_TaskRun(void);
 
 #endif //--- _BOARD_

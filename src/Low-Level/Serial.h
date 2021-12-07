@@ -43,5 +43,6 @@
 void SERIAL_Init(void);
 uint16_t SERIAL_Available(void);
 uint8_t SERIAL_Getc(void);
-
+uint16_t SERIAL_PrintString(String str);
+uint16_t SERIAL_PrintC(char c);
 #endif //--- _BOARD_

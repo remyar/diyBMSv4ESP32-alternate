@@ -14,6 +14,7 @@
 #include "./display.h"
 #include "tft_splash_image.h"
 #include "../rules/Rules.h"
+#include "../WiFi/wifi.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
@@ -198,4 +199,32 @@ void DISPLAY_Voltage(void)
     //blank out gap between numbers
     tft->fillRect(x, y, tft->width() - x, fontHeight_4, TFT_BLACK);
 
+}
+
+void DISPLAY_WifiDetails(void){
+    TFT_eSPI *tft = TFT_Get();
+
+    tft->setTextDatum(TL_DATUM);
+    int16_t y = tft->height() - fontHeight_2;
+    tft->fillRect(0, y, tft->width(), tft->height() - y, TFT_DARKGREY);
+    tft->setTextFont(2);
+    tft->setTextColor(TFT_BLACK, TFT_DARKGREY);
+    int16_t x = 2;
+
+    if (WiFi.isConnected())
+    {
+        x += tft->drawString(WiFi.getHostname(), x, y);
+        x += 10;
+        x += tft->drawString(WiFi.localIP().toString(), x, y);
+
+        //Draw RSSI on bottom right corner
+        //Received Signal Strength in dBm
+        x += 10;
+        x += tft->drawNumber(WiFi.RSSI(), x, y);
+        x += tft->drawString("dBm", x, y);
+    }
+    else
+    {
+        x += tft->drawString("WIFI not connected", x, y);
+    }
 }
