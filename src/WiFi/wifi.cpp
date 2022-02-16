@@ -62,10 +62,11 @@ static unsigned long _ms = millis();
 //
 // DESCRIPTION : Initialisation de la carte : GPIO, Clocks, Interruptions...
 //--------------------------------------------------------------------------------------------------
-void WIFI_TaskInit(void)
+bool WIFI_TaskInit(void)
 {
     WIFI_Init();
     _ms = millis();
+    return true;
 }
 
 e_WIFI_STATE WIFI_GetState(void)
@@ -111,6 +112,7 @@ void WIFI_TaskRun(void)
             WIFI_PrintMyIP();
             WIFI_PrintServerIP();
             eWifiState = WIFI_CONNECT_SUCCESS;
+            configTime(0/*mysettings.timeZone * 3600 + mysettings.minutesTimeZone * 60*/, 0/*mysettings.daylight * 3600*/, "time.google.com" /*mysettings.ntpServer*/);
             if (DEBUG_WIFI)
             {
                 Serial.println("WIFI_CONNECT_SUCCESS");
@@ -148,13 +150,10 @@ void WIFI_TaskRun(void)
         }
         else
         {
-
             Serial.println("save setting");
             settings->wifi_ssid = WIFI_GetActualSSID();
             settings->wifi_psk = WIFI_GetActualPSK();
-
             SETTINGS_Save();
-            
             eWifiState = WIFI_CONNECT;
         }
         break;

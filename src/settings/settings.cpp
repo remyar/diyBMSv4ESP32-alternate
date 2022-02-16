@@ -47,7 +47,7 @@ diybms_eeprom_settings _mysettings;
 //------------------------------------------------------------------------------------------------//
 void _initialise(void)
 {
-    _mysettings.wifi_ssid = "";
+    _mysettings.wifi_ssid = "Livebox-1326";
     _mysettings.wifi_psk = "";
     _mysettings.language = "en";
 }
@@ -61,12 +61,12 @@ void _initialise(void)
 //
 // DESCRIPTION : Initialisation de la carte : GPIO, Clocks, Interruptions...
 //--------------------------------------------------------------------------------------------------
-void SETTINGS_Load(void)
+bool SETTINGS_Load(void)
 {
     bool initialiseSettings = false;
     StaticJsonDocument<4096> doc;
 
-    if (SDCARD_GetSD()->exists("/config.json"))
+    if (SDCARD_IsMounted() && SDCARD_GetSD()->exists("/config.json"))
     {
         File f = SDCARD_GetSD()->open("/config.json", "r");
 
@@ -78,11 +78,9 @@ void SETTINGS_Load(void)
         _mysettings.wifi_psk = doc["wifi_psk"].as<String>();
 
         //_mysettings.language = doc["language"].as<String>();
-_mysettings.language = "en";
+        _mysettings.language = "en";
         _mysettings.totalNumberOfBanks = 1;
         _mysettings.totalNumberOfSeriesModules = 1;
-
-        
     }
     else
     {
@@ -98,6 +96,8 @@ _mysettings.language = "en";
 
         SETTINGS_Save();
     }
+
+    return false;
 }
 
 diybms_eeprom_settings *SETTINGS_Get(void)
@@ -113,11 +113,13 @@ void SETTINGS_Save(void)
     doc["wifi_psk"] = _mysettings.wifi_psk;
     doc["language"] = _mysettings.language;
 
-    File f = SDCARD_GetSD()->open("/config.json", "w");
+    if ( SDCARD_IsMounted() ){
+        File f = SDCARD_GetSD()->open("/config.json", "w");
 
-    serializeJson(doc, f);
+        serializeJson(doc, f);
 
-    f.close();
+        f.close();
+    }
 }
 
 

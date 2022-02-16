@@ -164,18 +164,14 @@ void ProcessBank(uint8_t bank)
 //
 // DESCRIPTION : Initialisation de la carte : GPIO, Clocks, Interruptions...
 //--------------------------------------------------------------------------------------------------
-void RULES_TaskInit(void)
+bool RULES_TaskInit(void)
 {
     _ms = millis();
+    return true;
 }
 
 void RULES_TaskRun(void)
 {
-    if ((millis() - _ms) < 1000)
-    {
-        return;
-    }
-
     ClearValues();
 
     rules.rule_outcome[BMSError] = false;

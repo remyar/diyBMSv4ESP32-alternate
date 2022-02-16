@@ -13,8 +13,7 @@
 //================================================================================================//
 
 #include "Board.h"
-#include "WiFi.h"
-#include "Serial.h"
+
 
 //================================================================================================//
 //                                            DEFINES                                             //
@@ -66,6 +65,8 @@ static void _InitClocks(void)
 static void _InitGpio(void)
 {
     pinMode(GPIO_PIN_BUTTON,INPUT_PULLUP);
+
+    pinMode(TCA9534A_INTERRUPT_PIN, INPUT);
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -89,5 +90,7 @@ void BOARD_Init(void)
     SERIAL_Init();
 
   //  WIFI_Init();
+
+    I2C_Init();
 
 }

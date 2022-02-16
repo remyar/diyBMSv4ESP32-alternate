@@ -26,6 +26,7 @@
 typedef enum {
     SCREEN_BOOTING = 0,
     SCREEN_HOME,
+    SCREEN_UPDATE,
     SCREEN_MAX
 }e_SCREEN;
 
@@ -47,5 +48,7 @@ typedef enum {
 bool SCREEN_TaskInit(void);
 bool SCREEN_TaskUpdate(void *p);
 void SCREEN_TaskRun(void);
+void SCREEN_Change(e_SCREEN _s);
+void SCREEN_SetUpdateProgress(float value);
 
 #endif //--- _BOARD_

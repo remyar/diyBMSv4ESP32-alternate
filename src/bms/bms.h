@@ -16,6 +16,7 @@
 //================================================================================================//
 #include "../typedefs.h"
 #include "../Low-Level/board.h"
+#include "../leds/leds.h"
 #include "./PacketRequestGenerator.h"
 #include "./PacketReceiveProcessor.h"
 
@@ -42,7 +43,7 @@
 //------------------------------------------------------------------------------------------------//
 //---                                        Fonctions                                         ---//
 //------------------------------------------------------------------------------------------------//
-void BMS_TaskInit(void);
+bool BMS_TaskInit(void);
 void BMS_TaskRun(void);
 
 CellModuleInfo* BMS_GetCMI(uint16_t idx);

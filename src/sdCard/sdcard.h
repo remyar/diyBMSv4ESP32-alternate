@@ -42,7 +42,8 @@
 //------------------------------------------------------------------------------------------------//
 //---                                        Fonctions                                         ---//
 //------------------------------------------------------------------------------------------------//
-void SDCARD_TaskInit(void);
+bool SDCARD_TaskInit(void);
 void SDCARD_TaskRun(void);
 SDFS* SDCARD_GetSD(void);
+bool SDCARD_IsMounted(void);
 #endif //--- _BOARD_

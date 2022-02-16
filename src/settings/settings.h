@@ -40,7 +40,7 @@
 //------------------------------------------------------------------------------------------------//
 //---                                        Fonctions                                         ---//
 //------------------------------------------------------------------------------------------------//
-void SETTINGS_Load(void);
+bool SETTINGS_Load(void);
 diybms_eeprom_settings* SETTINGS_Get(void);
 void SETTINGS_Save(void);
 uint32_t TotalNumberOfCells(void);

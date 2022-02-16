@@ -15,6 +15,7 @@
 //                                        FICHIERS INCLUS                                         //
 //================================================================================================//
 #include "TFT_eSPI.h"
+#include "../TCA9534APWR/TCA9534APWR.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
@@ -43,5 +44,6 @@
 void TFT_Init(void);
 void TFT_FillScreen(uint32_t color);
 TFT_eSPI* TFT_Get(void);
+void TFT_ScreenBacklight(bool value);
 
 #endif //--- _BOARD_

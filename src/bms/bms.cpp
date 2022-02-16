@@ -95,19 +95,20 @@ void onPacketReceived()
 //
 // DESCRIPTION : Initialisation de la carte : GPIO, Clocks, Interruptions...
 //--------------------------------------------------------------------------------------------------
-void BMS_TaskInit(void)
+bool BMS_TaskInit(void)
 {
     //Receive is IO2 which means the RX1 plug must be disconnected for programming to work!
     SERIAL_DATA.begin(9600, SERIAL_8N1, 2, 32); // Serial for comms to modules
 
     myPacketSerial.begin(&SERIAL_DATA, &onPacketReceived, sizeof(PacketStruct), SerialPacketReceiveBuffer, sizeof(SerialPacketReceiveBuffer));
-    _ms = millis() - 5000;
-    _ms2 = millis() - 5000;
+    _ms = millis();
+    _ms2 = millis();
+    return true;
 }
 
 void BMS_TaskRun(void)
 {
-    if ((millis() - _ms) > (TotalNumberOfCells() * 3000))
+    if ((millis() - _ms) >= (TotalNumberOfCells() * 3000))
     {
         uint16_t i = 0;
         uint16_t max = TotalNumberOfCells();
@@ -141,11 +142,11 @@ void BMS_TaskRun(void)
             startmodule = endmodule + 1;
             i += maximum_cell_modules_per_packet;
         }
-
+        
         _ms = millis();
     }
 
-    if ((millis() - _ms2) > 1000)
+    if ((millis() - _ms2) >= 1000)
     {
         if (requestQueue.isEmpty() == false)
         {

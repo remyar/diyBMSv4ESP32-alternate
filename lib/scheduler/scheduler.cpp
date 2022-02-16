@@ -23,9 +23,9 @@
 //-----------------------------------------------------------------------------
 // Variables globales
 //-----------------------------------------------------------------------------
-uint8_t nbTask = 0;
+static uint8_t nbTask = 0;
 s_TASK tasks[MAX_TASKS];
-
+static unsigned long _ms = millis();
 //-----------------------------------------------------------------------------
 // FONCTION    : SCHEDULER_Init
 //
@@ -50,6 +50,8 @@ void SCHEDULER_Init(void)
         else
             tasks[i].status = WAITING_STATUS;
     }
+
+    _ms = millis();
 }
 
 //-----------------------------------------------------------------------------
@@ -85,8 +87,11 @@ void SCHEDULER_Run(void)
     uint32_t tickStart;
     uint32_t taskLen;
 
-    SCHEDULER_Update();
-
+    if ((millis() - _ms) >= 1){
+        SCHEDULER_Update();
+        _ms = millis();
+    }
+    
     //--- Mise a jour des evenements
     for (i = 0; i < nbTask; i++)
     {
@@ -135,7 +140,8 @@ void SCHEDULER_Run(void)
 
         //--- LOG_NB_TASK_TIMES derniers temps
         tasks[idxActiveTasks[i]].taskLength = taskLen;
-
+        tasks[idxActiveTasks[i]].totalTickUsed += taskLen;
+        
         //--- temps min
         if (taskLen < tasks[idxActiveTasks[i]].minTaskLength)
             tasks[idxActiveTasks[i]].minTaskLength = taskLen;
@@ -148,7 +154,7 @@ void SCHEDULER_Run(void)
     }
 }
 
-void SCHEDULER_AddTask(PTR_TASK_INIT_FUNC initFunc , PTR_TASK_UPDATE_FUNC updFunc , PTR_TASK_RUN_FUNC runFunc , uint16_t period)
+void SCHEDULER_AddTask(String name , PTR_TASK_INIT_FUNC initFunc , PTR_TASK_UPDATE_FUNC updFunc , PTR_TASK_RUN_FUNC runFunc , uint16_t period)
 {
     s_TASK *t = &tasks[nbTask];
     t->idx = nbTask;
@@ -156,6 +162,7 @@ void SCHEDULER_AddTask(PTR_TASK_INIT_FUNC initFunc , PTR_TASK_UPDATE_FUNC updFun
     t->update = updFunc;
     t->run = runFunc;
     t->period = period;
+    t->name = name;
 
     nbTask++;
     if ( nbTask >= MAX_TASKS ){

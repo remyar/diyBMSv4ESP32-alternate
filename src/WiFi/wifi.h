@@ -49,7 +49,7 @@ typedef enum
 //------------------------------------------------------------------------------------------------//
 //---                                        Fonctions                                         ---//
 //------------------------------------------------------------------------------------------------//
-void WIFI_TaskInit(void);
+bool WIFI_TaskInit(void);
 void WIFI_TaskRun(void);
 e_WIFI_STATE WIFI_GetState(void);
 #endif //--- _BOARD_

@@ -14,7 +14,7 @@
 
 #include "Event.h"
 
-#define MAX_TASKS   10
+#define MAX_TASKS   12
 
 //-----------------------------------------------------------------------------
 // Definition de type
@@ -35,9 +35,13 @@ typedef struct
     int32_t minTaskLength;
     int32_t maxTaskLength;
 
+    uint32_t totalTickUsed;
+
     PTR_TASK_INIT_FUNC init;
     PTR_TASK_UPDATE_FUNC update;
     PTR_TASK_RUN_FUNC run;
+
+    String name;
 } s_TASK;
 
 enum

@@ -32,7 +32,10 @@
 //------------------------------------------------------------------------------------------------//
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
-
+static e_SCREEN _e_screen = SCREEN_BOOTING;
+static e_SCREEN _old_e_screen = SCREEN_MAX;
+static unsigned long _ms = millis();
+static float updateProgress = 0.00;
 //------------------------------------------------------------------------------------------------//
 //---                                        Partagees                                         ---//
 //------------------------------------------------------------------------------------------------//
@@ -56,18 +59,9 @@
 //-----------------------------------------------------------------------------
 void SCREEN_Init(void)
 {
-    uint8_t idxScreen;
-    /*
-      ctrl.screen = &scr;
-
-      if (swConfError == TRUE)
-         idxScreen = CONF_ERROR_SCR_IDX;
-      else if (IS_DISP_ACTIVE())
-         idxScreen = PRESENT_SCR_IDX;
-      else
-         idxScreen = MEASURES_SCR_IDX;
-
-      CONTROL_LoadScreen(&ctrl, idxScreen);*/
+   DISPLAY_Init();
+   _e_screen = SCREEN_BOOTING;
+   _ms = millis();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,8 +71,15 @@ void SCREEN_Init(void)
 //--------------------------------------------------------------------------------------------------
 bool SCREEN_TaskInit(void)
 {
-    SCREEN_Init();
-    return true;
+   SCREEN_Init();
+   _e_screen = SCREEN_BOOTING;
+   _old_e_screen = SCREEN_MAX;
+   return true;
+}
+
+void SCREEN_Change(e_SCREEN _s)
+{
+   _e_screen = _s;
 }
 
 //-----------------------------------------------------------------------------
@@ -88,16 +89,53 @@ bool SCREEN_TaskInit(void)
 //-----------------------------------------------------------------------------
 bool SCREEN_TaskUpdate(void *p)
 {
-  /*  s_EVENT *e = (s_EVENT *)p;
+   return true;
+}
 
-    SCREEN_Update(&scr, e);
-    SCREEN_Display(&scr);
-    EVENT_None(SCREEN_TASK);*/
-
-    return true;
+void SCREEN_SetUpdateProgress(float value)
+{
+   updateProgress = value;
 }
 
 void SCREEN_TaskRun(void)
 {
+   bool forceRefresh = _e_screen == SCREEN_HOME ? true : false;
+   if ((_e_screen == SCREEN_BOOTING) && (millis() - _ms) >= 5000)
+   {
+      SCREEN_Change(SCREEN_HOME);
+   }
+   if (_e_screen != _old_e_screen)
+   {
+      DISPLAY_FillScreen();
+      forceRefresh = true;
+      _old_e_screen = _e_screen;
+   }
 
+   if (forceRefresh == true)
+   {
+      switch (_e_screen)
+      {
+      case (SCREEN_BOOTING):
+      {
+         DISPLAY_Booting();
+         break;
+      }
+      case (SCREEN_HOME):
+      {
+         DISPLAY_Voltage();
+         DISPLAY_WifiDetails();
+         break;
+      }
+      case (SCREEN_UPDATE):
+      {
+         DISPLAY_Booting();
+         DISPLAY_Progress(updateProgress);
+         break;
+      }
+      default:
+      {
+         break;
+      }
+      }
+   }
 }

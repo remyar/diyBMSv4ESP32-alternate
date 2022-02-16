@@ -58,15 +58,33 @@ TFT_eSPI tft = TFT_eSPI();
 void TFT_Init(void)
 {
     tft.init();
-    tft.initDMA(); // Initialise the DMA engine (tested with STM32F446 and STM32F767)
+    //tft.initDMA(); // Initialise the DMA engine (tested with STM32F446 and STM32F767)
     tft.getSPIinstance().setHwCs(false);
     tft.setRotation(3);
 }
 
-void TFT_FillScreen(uint32_t color){
+void TFT_FillScreen(uint32_t color)
+{
     tft.fillScreen(color);
 }
 
-TFT_eSPI* TFT_Get(void){
+TFT_eSPI *TFT_Get(void)
+{
     return &tft;
+}
+
+void TFT_ScreenBacklight(bool value)
+{
+    uint8_t val = TCA9534APWR_GetValue();
+
+    // Clear LED pins
+    val = val & B11110111;
+
+    if (value == true)
+    {
+        // Set on
+        val = val | B00001000;
+    }
+
+    TCA9534APWR_SetValue(val);
 }

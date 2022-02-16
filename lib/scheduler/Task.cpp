@@ -37,7 +37,7 @@ bool TASK_Init(s_TASK *t)
 {
     t->status = INIT_STATUS;
     t->counter = t->period;
-
+    t->totalTickUsed = 0;
     return t->init();
 }
 

@@ -45,5 +45,6 @@ void DISPLAY_FillScreen(void);
 void DISPLAY_Booting(void);
 void DISPLAY_Voltage(void);
 void DISPLAY_WifiDetails(void);
+void DISPLAY_Progress ( float value );
 
 #endif //--- _BOARD_
