@@ -23,9 +23,9 @@
 //-----------------------------------------------------------------------------
 // Variables globales
 //-----------------------------------------------------------------------------
-uint8_t nbTask = 0;
+static uint8_t nbTask = 0;
 s_TASK tasks[MAX_TASKS];
-
+static uint32_t _ms;
 //-----------------------------------------------------------------------------
 // FONCTION    : SCHEDULER_Init
 //
@@ -50,6 +50,7 @@ void SCHEDULER_Init(void)
         else
             tasks[i].status = WAITING_STATUS;
     }
+    _ms = millis();
 }
 
 //-----------------------------------------------------------------------------
@@ -85,7 +86,10 @@ void SCHEDULER_Run(void)
     uint32_t tickStart;
     uint32_t taskLen;
 
-    SCHEDULER_Update();
+    if ( (millis() - _ms) >= 1 ){
+        SCHEDULER_Update();
+        _ms = millis();
+    }
 
     //--- Mise a jour des evenements
     for (i = 0; i < nbTask; i++)

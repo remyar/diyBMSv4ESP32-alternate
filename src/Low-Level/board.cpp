@@ -65,6 +65,7 @@ static void _InitClocks(void)
 //--------------------------------------------------------------------------------------------------
 static void _InitGpio(void)
 {
+    pinMode(GPIO_PIN_BUILTIN_LED,OUTPUT);
     pinMode(GPIO_PIN_BUTTON,INPUT_PULLUP);
 }
 
