@@ -53,14 +53,12 @@ static unsigned long _ms = millis();
 //------------------------------------------------------------------------------------------------//
 void preTransmission()
 {
-    digitalWrite(MAX485_RE_NEG, 1);
-    digitalWrite(MAX485_DE, 1);
+    digitalWrite(RS485_ENABLE, 1);
 }
 
 void postTransmission()
 {
-    digitalWrite(MAX485_RE_NEG, 0);
-    digitalWrite(MAX485_DE, 0);
+    digitalWrite(RS485_ENABLE, 0);
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -75,17 +73,14 @@ void postTransmission()
 bool MODBUS_TaskInit(void)
 {
     _ms = millis();
-    pinMode(MAX485_RE_NEG, OUTPUT);
-    pinMode(MAX485_DE, OUTPUT);
-    // Init in receive mode
-    digitalWrite(MAX485_RE_NEG, 0);
-    digitalWrite(MAX485_DE, 0);
+    pinMode(RS485_ENABLE, OUTPUT);
+    digitalWrite(RS485_ENABLE, 0);
 
-    Serial2.begin(9600);
+    Serial1.begin(115200,SERIAL_8N1,RS485_RX ,RS485_TX);
 
     for (int i = 0; i < NB_MAX_SLAVES; i++)
     {
-        node[i].begin(i + 1, Serial2);
+        node[i].begin(i + 1, Serial1);
         // Callbacks allow us to configure the RS485 transceiver correctly
         node[i].preTransmission(preTransmission);
         node[i].postTransmission(postTransmission);
