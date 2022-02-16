@@ -18,7 +18,6 @@
 #include "board.h"
 #include <WiFi.h>
 #include "esp_wps.h"
-#include "../memory/memory.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //

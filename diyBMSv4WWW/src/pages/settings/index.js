@@ -23,8 +23,9 @@ function Settings(props) {
 
     return <div>
 
-        <BankSettings settings />
+        <BankSettings settings={settings} />
 
+        {/*
         <NtpSettings settings />
 
         <div className="region">
@@ -105,7 +106,7 @@ function Settings(props) {
         <ResetCounter settings />
 
         <RestartController settings />
-
+            */}
     </div>;
 }
 

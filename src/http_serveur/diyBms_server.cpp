@@ -215,41 +215,30 @@ void SendFailure(AsyncWebServerRequest *request)
 void saveBankConfiguration(AsyncWebServerRequest *request)
 {
     diybms_eeprom_settings *_mysettings = SETTINGS_Get();
-    uint8_t totalSeriesModules = 1;
-    uint8_t totalBanks = 1;
-    uint16_t baudrate = COMMS_BAUD_RATE;
 
-    if (request->hasParam("totalSeriesModules", true))
-    {
-        AsyncWebParameter *p1 = request->getParam("totalSeriesModules", true);
-        totalSeriesModules = p1->value().toInt();
+    if (request->hasParam("totalControllers", true)){
+        AsyncWebParameter *p1 = request->getParam("totalControllers", true);
+        _mysettings->totalControllers = p1->value().toInt();
     }
 
-    if (request->hasParam("totalBanks", true))
-    {
-        AsyncWebParameter *p1 = request->getParam("totalBanks", true);
-        totalBanks = p1->value().toInt();
+    for ( int i = 0 ; i < _mysettings->totalControllers ; i++){
+        if (request->hasParam("totalSeriesModules_" + String(i), true)){
+            AsyncWebParameter *p1 = request->getParam("totalSeriesModules_" + String(i), true);
+            _mysettings->totalNumberOfSeriesModules[i] = p1->value().toInt();
+        }
+        if (request->hasParam("totalBanks_" + String(i), true)){
+            AsyncWebParameter *p1 = request->getParam("totalBanks_" + String(i), true);
+            _mysettings->totalNumberOfBanks[i] = p1->value().toInt();
+        }
+        if (request->hasParam("baudrate_" + String(i), true)){
+            AsyncWebParameter *p1 = request->getParam("baudrate_" + String(i), true);
+            _mysettings->baudRate[i] = p1->value().toInt();
+        }
     }
 
-    if (request->hasParam("baudrate", true))
-    {
-        AsyncWebParameter *p1 = request->getParam("baudrate", true);
-        baudrate = p1->value().toInt();
-    }
+    SETTINGS_Save();
 
-    if (totalSeriesModules * totalBanks <= maximum_controller_cell_modules)
-    {
-        _mysettings->totalNumberOfSeriesModules = totalSeriesModules;
-        _mysettings->totalNumberOfBanks = totalBanks;
-        _mysettings->baudRate = baudrate;
-        SETTINGS_Save();
-
-        SendSuccess(request);
-    }
-    else
-    {
-        SendFailure(request);
-    }
+    SendSuccess(request);
 }
 
 //------------------------------------------------------------------------------------------------//

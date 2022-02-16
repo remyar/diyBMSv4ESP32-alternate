@@ -96,9 +96,10 @@ struct diybms_eeprom_settings
 {
     String wifi_ssid;
     String wifi_psk;
-    uint8_t totalNumberOfBanks;
-    uint8_t totalNumberOfSeriesModules;
-    uint16_t baudRate;
+    uint8_t totalControllers;
+    uint8_t totalNumberOfBanks[16];
+    uint8_t totalNumberOfSeriesModules[16];
+    uint16_t baudRate[16];
 
     uint32_t rulevalue[RELAY_RULES];
     uint32_t rulehysteresis[RELAY_RULES];

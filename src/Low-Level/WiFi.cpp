@@ -146,21 +146,6 @@ void WIFI_APSetup(void)
     delay(100);
 
     WiFi.scanNetworks();
-    /*  int n = WiFi.scanNetworks();
-    if (n == 0)
-        String networks = "no networks found";
-    else
-    {
-        String networks = "";
-        for (int i = 0; i < n; ++i)
-        {
-            networks += "<option>" + WiFi.SSID(i) + "</option>";
-            if (DEBUG_WIFI)
-            {
-                Serial.println(WiFi.SSID(i).c_str());
-            }
-        }
-    }*/
 
     WiFi.mode(WIFI_OFF);
     delay(100);

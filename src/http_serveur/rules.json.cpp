@@ -13,8 +13,6 @@
 //================================================================================================//
 
 #include "./rules.json.h"
-#include "../bms/bms.h"
-#include "../rules/rules.h"
 #include "../sdcard/sdcard.h"
 #include "./printStream.h"
 

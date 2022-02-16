@@ -35,7 +35,7 @@
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
 static bool _isMounted = false;
-static bool _isLogging = true;
+static bool _isLogging = false;
 //------------------------------------------------------------------------------------------------//
 //---                                        Partagees                                         ---//
 //------------------------------------------------------------------------------------------------//
@@ -122,7 +122,7 @@ void SDCARD_TaskRun(void)
 
     if ((_isMounted == true) && (_isLogging == true))
     {
-        struct tm timeinfo;
+      /*  struct tm timeinfo;
         if (getLocalTime(&timeinfo, 1))
         {
             timeinfo.tm_year += 1900;
@@ -225,6 +225,6 @@ void SDCARD_TaskRun(void)
         }
         else {
             Serial.println("GetlocalTime Failed");
-        }
+        }*/
     }
 }

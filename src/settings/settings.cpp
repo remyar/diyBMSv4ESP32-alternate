@@ -77,10 +77,16 @@ bool SETTINGS_Load(void)
         _mysettings.wifi_ssid = doc["wifi_ssid"].as<String>();
         _mysettings.wifi_psk = doc["wifi_psk"].as<String>();
 
-        //_mysettings.language = doc["language"].as<String>();
-        _mysettings.language = "en";
-        _mysettings.totalNumberOfBanks = 1;
-        _mysettings.totalNumberOfSeriesModules = 1;
+        _mysettings.language = doc["language"].as<String>();
+
+        _mysettings.totalControllers = doc["totalControllers"].as<uint8_t>();
+
+        for (int i = 0; i < _mysettings.totalControllers; i++)
+        {
+            _mysettings.totalNumberOfSeriesModules[i] = doc["totalNumberOfSeriesModules_" + String(i)].as<uint8_t>();
+            _mysettings.totalNumberOfBanks[i]= doc["totalNumberOfBanks_" + String(i)].as<uint8_t>();
+            _mysettings.baudRate[i]= doc["baudRate_" + String(i)].as<uint8_t>();
+        }
     }
     else
     {
@@ -109,11 +115,23 @@ void SETTINGS_Save(void)
 {
     StaticJsonDocument<4096> doc;
 
+    Serial.println("on sauvegarde");
+    
     doc["wifi_ssid"] = _mysettings.wifi_ssid;
     doc["wifi_psk"] = _mysettings.wifi_psk;
     doc["language"] = _mysettings.language;
 
-    if ( SDCARD_IsMounted() ){
+    doc["totalControllers"] = _mysettings.totalControllers;
+
+    for (int i = 0; i < _mysettings.totalControllers; i++)
+    {
+        doc["totalNumberOfSeriesModules_" + String(i)] = _mysettings.totalNumberOfSeriesModules[i];
+        doc["totalNumberOfBanks_" + String(i)] = _mysettings.totalNumberOfBanks[i];
+        doc["baudRate_" + String(i)] = _mysettings.baudRate[i];
+    }
+
+    if (SDCARD_IsMounted())
+    {
         File f = SDCARD_GetSD()->open("/config.json", "w");
 
         serializeJson(doc, f);
@@ -122,8 +140,8 @@ void SETTINGS_Save(void)
     }
 }
 
-
 uint32_t TotalNumberOfCells(void)
 {
-    return _mysettings.totalNumberOfBanks * _mysettings.totalNumberOfSeriesModules;
+    // return _mysettings.totalNumberOfBanks * _mysettings.totalNumberOfSeriesModules;
+    return 1;
 }

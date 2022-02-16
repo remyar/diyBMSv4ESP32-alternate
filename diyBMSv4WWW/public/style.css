@@ -109,6 +109,7 @@ a:visited {color:#e8e8e8;font-weight:bold;}
 .rule input { width:100px; }
 th {font-family:Arial,Helvetica,sans-serif;text-align:center;font-size:14px;}
 .relayset select { min-width:50px; }
+.settings { padding-bottom:15px;}
 .settings label { min-width:285px;width:auto;}
 
 .warnicon { float:left; margin-right:8px;}

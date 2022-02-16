@@ -8,42 +8,39 @@
 //                                                                                                //
 //================================================================================================//
 
-#ifndef _RULES_H_
-#define _RULES_H_
+#ifndef _MODBUS_H_
+#define _MODBUS_H_
 
 //================================================================================================//
 //                                        FICHIERS INCLUS                                         //
 //================================================================================================//
+
+#include <ModbusMaster.h>
 #include "../Low-Level/board.h"
 #include "../typedefs.h"
+#include "../settings/settings.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
 //================================================================================================//
+#define NB_MAX_SLAVES   8
 
 //================================================================================================//
 //                                          ENUMERATIONS                                          //
 //================================================================================================//
 typedef enum {
-    EmergencyStop = 0,
-    BMSError = 1,
-    CurrentMonitorOverCurrentAmps = 2,
-    ModuleOverVoltage = 3,
-    ModuleUnderVoltage = 4,
-    ModuleOverTemperatureInternal = 5,
-    ModuleUnderTemperatureInternal = 6,
-    ModuleOverTemperatureExternal = 7,
-    ModuleUnderTemperatureExternal = 8,
-    CurrentMonitorOverVoltage = 9,
-    CurrentMonitorUnderVoltage = 10,
-    BankOverVoltage = 11,
-    BankUnderVoltage = 12,
-    Timer2 = 13,
-    Timer1 = 14
-}E_RULES;
+    RTU_READ_CONTROLLER = 0,
+}e_RTU_STATE;
+
 //================================================================================================//
 //                                      STRUCTURES ET UNIONS                                      //
 //================================================================================================//
+
+typedef struct {
+    ModbusMaster * slave;
+    bool    availlable;
+    CellModuleInfo cmi[maximum_controller_cell_modules];
+}s_RTU_SLAVE;
 
 //================================================================================================//
 //                                VARIABLES ET FONCTION PARTAGEES                                 //
@@ -56,8 +53,9 @@ typedef enum {
 //------------------------------------------------------------------------------------------------//
 //---                                        Fonctions                                         ---//
 //------------------------------------------------------------------------------------------------//
-bool RULES_TaskInit(void);
-void RULES_TaskRun(void);
-Rules* RULES_Get(void);
+bool MODBUS_TaskInit(void);
+void MODBUS_TaskRun(void);
+
+CellModuleInfo* CMI_Get(uint8_t controllerId , uint8_t cmiId);
 
 #endif //--- _BOARD_

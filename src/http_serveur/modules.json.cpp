@@ -13,7 +13,6 @@
 //================================================================================================//
 
 #include "./modules.json.h"
-#include "../bms/bms.h"
 #include "./printStream.h"
 
 //================================================================================================//
@@ -60,35 +59,35 @@
 void MODULES_JSON(AsyncWebServerRequest *request)
 {
     diybms_eeprom_settings *_mysettings = SETTINGS_Get();
-    PacketRequestGenerator *_prg = BMS_GetPrg();
+    /*PacketRequestGenerator *_prg = BMS_GetPrg();
     PacketReceiveProcessor *_receiveProc = BMS_GetReceiveProc();
-    Rules *_rules = RULES_Get();
+    Rules *_rules = RULES_Get();*/
     if (request->hasParam("c", false))
     {
         AsyncWebParameter *cellid = request->getParam("c", false);
         uint8_t c = cellid->value().toInt();
 
-        if (c > _mysettings->totalNumberOfBanks * _mysettings->totalNumberOfSeriesModules)
+//        if (c > _mysettings->totalNumberOfBanks * _mysettings->totalNumberOfSeriesModules)
         {
             request->send(500, "text/plain", "Wrong parameter bank");
             return;
         }
 
-        if (cmi[c].settingsCached == false)
+    /*    if (cmi[c].settingsCached == false)
         {
             _prg->sendGetSettingsRequest(c);
-        }
+        }*/
 
         AsyncResponseStream *response = request->beginResponseStream("application/json");
 
         DynamicJsonDocument doc(2048);
         JsonObject root = doc.to<JsonObject>();
         JsonObject settings = root.createNestedObject("settings");
-
+/*
         uint8_t b = c / _mysettings->totalNumberOfSeriesModules;
         uint8_t m = c - (b * _mysettings->totalNumberOfSeriesModules);
         settings["bank"] = b;
-        settings["module"] = m;
+        settings["module"] = m;*/
         settings["id"] = c;
         settings["ver"] = cmi[c].BoardVersionNumber;
         settings["code"] = cmi[c].CodeVersionNumber;

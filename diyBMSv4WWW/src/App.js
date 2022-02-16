@@ -36,15 +36,15 @@ function App(props) {
         props.dispatch(actionsBms.getRules());
         props.dispatch(actionsBms.getSettings());
 
-        props.dispatch(actionsBms.getMonitor2());
-        props.dispatch(actionsBms.getMonitor3());
+      //  props.dispatch(actionsBms.getMonitor2());
+      //  props.dispatch(actionsBms.getMonitor3());
 
-        props.dispatch(actionsBms.getStorage());
+      //  props.dispatch(actionsBms.getStorage());
 
         const interval = setInterval(() => {
-            props.dispatch(actionsBms.getMonitor2());
-            props.dispatch(actionsBms.getMonitor3());
-            props.dispatch(actionsBms.getStorage());
+           // props.dispatch(actionsBms.getMonitor2());
+           // props.dispatch(actionsBms.getMonitor3());
+           // props.dispatch(actionsBms.getStorage());
         }, 2000);
 
         return () => clearInterval(interval);

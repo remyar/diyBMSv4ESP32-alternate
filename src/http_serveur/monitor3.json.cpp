@@ -13,7 +13,6 @@
 //================================================================================================//
 
 #include "./monitor3.json.h"
-#include "../bms/bms.h"
 #include "./printStream.h"
 
 //================================================================================================//
@@ -60,13 +59,13 @@
 void MONITOR3_JSON(AsyncWebServerRequest *request)
 {
     diybms_eeprom_settings *_mysettings = SETTINGS_Get();
-    PacketRequestGenerator *_prg = BMS_GetPrg();
+    /*PacketRequestGenerator *_prg = BMS_GetPrg();
     PacketReceiveProcessor *_receiveProc = BMS_GetReceiveProc();
-    Rules *_rules = RULES_Get();
+    Rules *_rules = RULES_Get();*/
 
     // DynamicJsonDocument doc(maximum_controller_cell_modules * 50);
     AsyncResponseStream *response = request->beginResponseStream("application/json");
-
+/*
     uint8_t totalModules = _mysettings->totalNumberOfBanks * _mysettings->totalNumberOfSeriesModules;
     uint8_t comma = totalModules - 1;
 
@@ -129,5 +128,5 @@ void MONITOR3_JSON(AsyncWebServerRequest *request)
     response->print("]}");
 
     response->addHeader("Cache-Control", "no-store");
-    request->send(response);
+    request->send(response);*/
 }

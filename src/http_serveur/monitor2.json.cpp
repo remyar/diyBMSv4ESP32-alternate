@@ -13,7 +13,6 @@
 //================================================================================================//
 
 #include "./monitor2.json.h"
-#include "../bms/bms.h"
 #include "./printStream.h"
 
 //================================================================================================//
@@ -60,19 +59,19 @@
 void MONITOR2_JSON(AsyncWebServerRequest *request)
 {
     diybms_eeprom_settings *_mysettings = SETTINGS_Get();
-    PacketRequestGenerator * _prg = BMS_GetPrg();
+  /*  PacketRequestGenerator * _prg = BMS_GetPrg();
     PacketReceiveProcessor * _receiveProc = BMS_GetReceiveProc();
-    Rules* _rules = RULES_Get();
-
+   Rules* _rules = RULES_Get();*/ 
+/*
     uint8_t totalModules = _mysettings->totalNumberOfBanks * _mysettings->totalNumberOfSeriesModules;
-
+*/
     const char comma = ',';
     const char *null = "null";
 
     AsyncResponseStream *response = request->beginResponseStream("application/json");
 
     response->print("{");
-
+/*
     PrintStreamComma(response, "\"banks\":", _mysettings->totalNumberOfBanks);
     PrintStreamComma(response, "\"seriesmodules\":", _mysettings->totalNumberOfSeriesModules);
 
@@ -101,7 +100,7 @@ void MONITOR2_JSON(AsyncWebServerRequest *request)
 */
     response->print(F("\"errors\":["));
     uint8_t count = 0;
-
+/*
     for (size_t i = 0; i < sizeof(_rules->ErrorCodes); i++)
     {
         if (_rules->ErrorCodes[i] != InternalErrorCode::NoError)
@@ -115,12 +114,12 @@ void MONITOR2_JSON(AsyncWebServerRequest *request)
             response->print(_rules->ErrorCodes[i]);
             count++;
         }
-    }
+    }*/
     response->print("],");
 
     response->print(F("\"warnings\":["));
     count = 0;
-    for (size_t i = 0; i < sizeof(_rules->WarningCodes); i++)
+   /* for (size_t i = 0; i < sizeof(_rules->WarningCodes); i++)
     {
         if (_rules->WarningCodes[i] != InternalWarningCode::NoWarning)
         {
@@ -133,12 +132,12 @@ void MONITOR2_JSON(AsyncWebServerRequest *request)
             response->print(_rules->WarningCodes[i]);
             count++;
         }
-    }
+    }*/
     response->print("],");
 
     //voltages
     response->print(F("\"voltages\":["));
-
+/*
     for (uint8_t i = 0; i < totalModules; i++)
     {
         //Comma if not zero
@@ -309,7 +308,7 @@ void MONITOR2_JSON(AsyncWebServerRequest *request)
     }
   }
   response->print(']');
-
+*/
 /*  response->print(comma);
 
 

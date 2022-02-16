@@ -11,9 +11,7 @@
 //================================================================================================//
 //                                        FICHIERS INCLUS                                         //
 //================================================================================================//
-
-#include "./console.h"
-#include <scheduler.h>
+#include "modbus.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
@@ -30,10 +28,18 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                 VARIABLES PRIVEES ET PARTAGEES                                 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// instantiate ModbusMaster object
+static ModbusMaster node[NB_MAX_SLAVES];
 
+static s_RTU_SLAVE sRtuSlave[NB_MAX_SLAVES];
+
+static uint8_t idxCtrl = 0;
+static uint8_t idxCmi = 0;
 //------------------------------------------------------------------------------------------------//
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
+static e_RTU_STATE eRtuState = RTU_READ_CONTROLLER;
+static unsigned long _ms = millis();
 
 //------------------------------------------------------------------------------------------------//
 //---                                        Partagees                                         ---//
@@ -46,76 +52,77 @@
 //------------------------------------------------------------------------------------------------//
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
+void preTransmission()
+{
+    digitalWrite(RS485_ENABLE, 1);
+}
 
+void postTransmission()
+{
+    digitalWrite(RS485_ENABLE, 0);
+}
+
+CellModuleInfo* CMI_Get(uint8_t controllerId , uint8_t cmiId){
+    return &sRtuSlave[controllerId].cmi[cmiId];
+}
 //------------------------------------------------------------------------------------------------//
 //---                                        Partagees                                         ---//
 //------------------------------------------------------------------------------------------------//
 
 //--------------------------------------------------------------------------------------------------
-// FONCTION    : CONSOLE_TaskInit
+// FONCTION    : KEYBOARD_Init
 //
 // DESCRIPTION : Initialisation de la carte : GPIO, Clocks, Interruptions...
 //--------------------------------------------------------------------------------------------------
-bool CONSOLE_TaskInit(void)
+bool MODBUS_TaskInit(void)
 {
+    _ms = millis();
+    pinMode(RS485_ENABLE, OUTPUT);
+    digitalWrite(RS485_ENABLE, 0);
+
+    Serial1.begin(115200,SERIAL_8N1,RS485_RX ,RS485_TX);
+
+    for (int i = 0; i < NB_MAX_SLAVES; i++)
+    {
+        node[i].begin(i + 1, Serial1);
+        // Callbacks allow us to configure the RS485 transceiver correctly
+        node[i].preTransmission(preTransmission);
+        node[i].postTransmission(postTransmission);
+
+        sRtuSlave[i].slave = &node[i];
+        sRtuSlave[i].availlable = false;
+    }
+
+    eRtuState = RTU_READ_CONTROLLER;
+    idxCtrl = 0;
+    idxCmi = 0;
     return true;
 }
 
-void CONSOLE_TaskRun(void)
+void MODBUS_TaskRun(void)
 {
-    uint32_t i, j;
-    uint16_t len;
-
-    SERIAL_PrintString("Task");
-    for (j = 4; j < 16; j++)
-    {
-        SERIAL_PrintString(" ");
-    }
-    SERIAL_PrintString("State  Pri  #  cpu  ");
-    SERIAL_PrintString("\r\n");
-
-    SERIAL_PrintString("----------------------------------------------");
-
-    SERIAL_PrintString("\r\n");
-
-    for ( i = 0 ; i < MAX_TASKS ; i++ ){
-        if ( tasks[i].idx != NULL ){
-            /* nom de la tache */
-			len = strlen(tasks[i].name.c_str());
-			SERIAL_PrintString(tasks[i].name);
-			for ( j = len ; j < 16 ; j++)
-			{
-				SERIAL_PrintString(" ");
-			}
-
-			/* état de la tache */
-			switch ( tasks[i].status )
-			{
-				case ( NO_STATUS ):		SERIAL_PrintString("NO     "); break;
-				case ( INIT_STATUS ):	SERIAL_PrintString("INIT   "); break;
-				case ( WAITING_STATUS ):SERIAL_PrintString("WAIT   "); break;
-				case ( READY_STATUS ):	SERIAL_PrintString("READY  "); break;
-				case ( RUNNING_STATUS ):SERIAL_PrintString("RUN    "); break;
-				case ( END_RUN_STATUS ):SERIAL_PrintString("END    "); break;
-			}
-
-			/* priorité */
-			SERIAL_PrintString("0     ");
-
-			/* numéros de la tache */
-			SERIAL_PrintString(String(tasks[i].idx) + "  ");
-
-			/* utilisation CPu */
-			float percent = (float)((float)tasks[i].totalTickUsed / (float)millis())*100.0 ;
-
-			if ( percent < 1.0 )
-				SERIAL_PrintString("<1%% ");
-			else
-				SERIAL_PrintString(String(percent) + " ");
-
-			SERIAL_PrintString("\r\n");
+    diybms_eeprom_settings * _mySettings = SETTINGS_Get();
+    switch(eRtuState){
+        case RTU_READ_CONTROLLER:{
+            uint16_t cmiAddress = idxCmi << 8;
+            uint8_t result = sRtuSlave[idxCtrl].slave->readInputRegisters(cmiAddress | 0xFF, 23);
+            if (result == sRtuSlave[idxCtrl].slave->ku8MBSuccess){
+                sRtuSlave[idxCtrl].cmi[idxCmi].valid = sRtuSlave[idxCtrl].slave->getResponseBuffer(19);
+                sRtuSlave[idxCtrl].cmi[idxCmi].voltagemV = sRtuSlave[idxCtrl].slave->getResponseBuffer(20);
+            } else {
+                Serial.print("Request Timeout");
+            }
+            if ( idxCmi >= _mySettings->totalNumberOfSeriesModules[idxCtrl] ){
+                idxCmi = 0;
+                idxCtrl++;
+                if ( idxCtrl >= _mySettings->totalControllers ){
+                    idxCtrl = 0;
+                }
+            }
+            break;
+        }
+        default:{
+            break;
         }
     }
-    SERIAL_PrintString("\r\n");
-    SERIAL_PrintString("\r\n");
 }
