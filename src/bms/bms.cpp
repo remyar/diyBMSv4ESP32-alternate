@@ -12,7 +12,7 @@
 //                                        FICHIERS INCLUS                                         //
 //================================================================================================//
 
-#include "keyboard.h"
+#include "bms.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
@@ -33,9 +33,8 @@
 //------------------------------------------------------------------------------------------------//
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
-static bool _pushed = false;
-static bool _longPush = false;
 static unsigned long _ms = millis();
+static s_GLOBAL_BMS _GloblasBms;
 //------------------------------------------------------------------------------------------------//
 //---                                        Partagees                                         ---//
 //------------------------------------------------------------------------------------------------//
@@ -57,42 +56,21 @@ static unsigned long _ms = millis();
 //
 // DESCRIPTION : Initialisation de la carte : GPIO, Clocks, Interruptions...
 //--------------------------------------------------------------------------------------------------
-bool KEYBOARD_TaskInit(void)
+bool BMS_TaskInit(void)
 {
-    _pushed = false;
-    _longPush = false;
     _ms = millis();
-    return true;
-}
-
-void KEYBOARD_TaskRun(void)
-{
-
-    if ((GPIO_BUTTON_VAL() == true))
+    for (int i = 0; i < maximum_of_total_controllers; i++)
     {
-        if (_pushed == false)
-        {
-            _ms = millis();
-        }
-        _pushed = true;
-        if ((millis() - _ms) >= 3000)
-        {
-            _longPush = true;
-        }
+        _GloblasBms.controllerVoltage[i] = 0;
     }
-    else
-    {
-        _pushed = false;
-        _longPush = false;
-    }
+    return false;
 }
 
-bool KEYBOARD_IsPushed(void)
+void BMS_TaskRun(void)
 {
-    return _pushed;
 }
 
-bool KEYBOARD_IsLongPush(void)
+s_GLOBAL_BMS *BMS_GetBmsPtr(void)
 {
-    return _longPush;
+    return &_GloblasBms;
 }

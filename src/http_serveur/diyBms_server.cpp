@@ -234,6 +234,9 @@ void saveBankConfiguration(AsyncWebServerRequest *request)
             AsyncWebParameter *p1 = request->getParam("baudrate_" + String(i), true);
             _mysettings->baudRate[i] = p1->value().toInt();
         }
+
+        //-- send to controller
+        MODBUS_SendConfiguration(i);
     }
 
     SETTINGS_Save();

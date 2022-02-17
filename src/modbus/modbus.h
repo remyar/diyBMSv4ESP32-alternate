@@ -19,6 +19,7 @@
 #include "../Low-Level/board.h"
 #include "../typedefs.h"
 #include "../settings/settings.h"
+#include "../bms/bms.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
@@ -29,7 +30,7 @@
 //                                          ENUMERATIONS                                          //
 //================================================================================================//
 typedef enum {
-    RTU_READ_CONTROLLER = 0,
+    RTU_READ_CONTROLLER_VOLTAGE_AND_STATUS = 0,
 }e_RTU_STATE;
 
 //================================================================================================//
@@ -55,6 +56,7 @@ typedef struct {
 //------------------------------------------------------------------------------------------------//
 bool MODBUS_TaskInit(void);
 void MODBUS_TaskRun(void);
+void MODBUS_SendConfiguration(uint8_t idxController);
 
 CellModuleInfo* CMI_Get(uint8_t controllerId , uint8_t cmiId);
 

@@ -15,6 +15,7 @@
 #include "tft_splash_image.h"
 #include "../WiFi/wifi.h"
 #include "../modbus/modbus.h"
+#include "../bms/bms.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
@@ -119,88 +120,124 @@ void DISPLAY_Booting(void)
 
 void DISPLAY_Voltage(void)
 {
-    CellModuleInfo *cmi = CMI_Get(0, 0);
-    
-        //   Rules *rules = RULES_Get();
-        TFT_eSPI *tft = TFT_Get();
+    // CellModuleInfo *cmi = CMI_Get(0, 0);
+    s_GLOBAL_BMS *bms = BMS_GetBmsPtr();
 
-    // We have a single bank/pack
-    tft->setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+    //   Rules *rules = RULES_Get();
+    TFT_eSPI *tft = TFT_Get();
+
+    tft->fillScreen(TFT_BLACK);
 
     int16_t w = tft->width();
     // Take off the wifi banner height
-    int16_t h = tft->height() - fontHeight_2 - 100;
-    float value = 0.0;
-    const int16_t xoffset = 32;
+    int16_t h = tft->height() - fontHeight_2 - 68;
+    int16_t yhalfway = h / 2;
+
+    // Grid lines
+    tft->drawLine(w / 2, 0, w / 2, h, TFT_DARKGREY);
+
+    tft->drawLine(0, yhalfway, w, yhalfway, TFT_DARKGREY);
+
+    tft->drawLine(0, h, w, h, TFT_DARKGREY);
 
     tft->setTextFont(2);
     // Need to think about multilingual strings in the longer term
-    tft->drawString("Bank voltage", xoffset + 0, 0);
-    tft->drawString("External temp", xoffset + 0, h);
-    tft->drawString("Module temp", xoffset + w / 2, h);
-    tft->drawString("Cell voltage", xoffset + 0, 44 + h);
-    tft->drawString("Modules balancing", xoffset + w / 2, 44 + h);
+    tft->setTextColor(TFT_LIGHTGREY, TFT_BLACK);
+    tft->drawString("Bank voltage", 0, 0);
+    tft->drawString("External temp", 0, h + 2);
+    tft->drawString("Module temp", 2 + w / 2, h + 2);
+    tft->drawString("Cell voltages", 0, fontHeight_2 + fontHeight_2 + h + 2);
+    tft->drawString("Modules balancing", 2 + w / 2, fontHeight_2 + fontHeight_2 + h + 2);
 
-    // Single bank, large font
+    uint8_t ctrl = maximum_of_total_controllers > 4 ? 4 : maximum_of_total_controllers;
+
+    for (uint8_t i = 0; i < ctrl; i++)
+    {
+        int16_t y = 0;
+        int16_t x = 0;
+
+        if (i == 1 || i == 3)
+        {
+            x += 4 + w / 2;
+        }
+
+        if (i > 1)
+        {
+            y += 2 + yhalfway;
+        }
+
+        // Need to think about multilingual strings in the longer term
+        x += tft->drawString("Controller voltage ", x, y);
+        x += tft->drawNumber(i, x, y);
+
+        //-- VALUE
+        tft->setTextDatum(TL_DATUM);
+        int16_t halfway = h / 2;
+        y = 1 + fontHeight_2;
+        x = 0;
+
+        // Half way across screen, minus vertical line
+        int16_t limitx = (w / 2) - 1;
+
+        if (i == 1 || i == 3)
+        {
+            x += 4 + w / 2;
+            limitx = w;
+        }
+
+        if (i > 1)
+        {
+            y += halfway;
+        }
+
+        tft->setTextColor(TFT_GREEN, TFT_BLACK);
+        tft->setTextFont(7);
+        float value = bms->controllerVoltage[i] / 1000.0;
+        x += tft->drawFloat(value, 2, x, y);
+
+        // Clear right hand side of display
+        tft->fillRect(x, y, limitx - x, tft->fontHeight(), TFT_BLACK);
+    }
+
     tft->setTextColor(TFT_GREEN, TFT_BLACK);
-    // Large FONT 8 - 75 pixel high (only numbers available)
-    // Top centre
-    tft->setTextDatum(TC_DATUM);
-    tft->setTextFont(8);
+    //Tiny font
+    tft->setTextFont(2);
 
-    int16_t y = fontHeight_2;
-    int16_t x = tft->width() / 2;
-    // float value = rules->packvoltage[0] / 1000.0;
-    value = cmi->voltagemV / 1000.0;
-    x += tft->drawFloat(value, 2, x, y);
-    // Clear right hand side of display
-    tft->fillRect(x, y, tft->width() - x, tft->fontHeight(), TFT_BLACK);
-
-    // Top left
-    tft->setTextDatum(TL_DATUM);
-    tft->setTextFont(4);
-
-    // Cell temperatures and stuff
-
-    y = h + fontHeight_2;
-    x = xoffset + 0;
-    /*  if (rules->moduleHasExternalTempSensor)
-      {
-          x += tft->drawNumber(rules->lowestExternalTemp, x, y);
-          x += tft->drawString(" / ", x, y);
-          x += tft->drawNumber(rules->highestExternalTemp, x, y);
-      }
-      else*/
+    int16_t x = 0;
+    int16_t y = fontHeight_2 + h + 2;
+  /*  if (rules.moduleHasExternalTempSensor)
+    {
+        x += tft.drawNumber(rules.lowestExternalTemp, x, y);
+        x += tft.drawString(" / ", x, y);
+        x += tft.drawNumber(rules.highestExternalTemp, x, y);
+    }
+    else*/
     {
         x += tft->drawString("Not fitted", x, y);
     }
-    // blank out gap between numbers
-    tft->fillRect(x, y, (tft->width() / 2) - x, fontHeight_4, TFT_BLACK);
+    //blank out gap between numbers
+    tft->fillRect(x, y, (w / 2) - 1 - x, fontHeight_2, TFT_BLACK);
 
-    x = xoffset + tft->width() / 2;
-    y = h + fontHeight_2;
-    // x += tft->drawNumber(rules->lowestInternalTemp, x, y);
-    //  x += tft->drawString(" / ", x, y);
-    // x += tft->drawNumber(rules->highestInternalTemp, x, y);
-    // blank out gap between numbers
-    tft->fillRect(x, y, tft->width() - x, fontHeight_4, TFT_BLACK);
+    x = 2 + w / 2;
+    y = fontHeight_2 + h + 2;
+    x += tft->drawNumber(0.0, x, y);
+    x += tft->drawString(" / ", x, y);
+    x += tft->drawNumber(0.0, x, y);
+    tft->fillRect(x, y, w - x, fontHeight_2, TFT_BLACK);
 
-    // Cell voltage ranges
-    y = h + fontHeight_4 + fontHeight_2 + fontHeight_2 + 2;
-    x = xoffset + 0;
-    //  value = rules->lowestCellVoltage / 1000.0;
+    x = 0;
+    y = fontHeight_2 + fontHeight_2 + fontHeight_2 + h + 2;
+    float value = 0 / 1000.0;
     x += tft->drawFloat(value, 3, x, y);
     x += tft->drawString(" / ", x, y);
-    //   value = rules->highestCellVoltage / 1000.0;
+    value = 0 / 1000.0;
     x += tft->drawFloat(value, 3, x, y);
-    // blank out gap between numbers
-    tft->fillRect(x, y, tft->width() / 2 - x, fontHeight_4, TFT_BLACK);
+    tft->fillRect(x, y, (w / 2) - 1 - x, fontHeight_2, TFT_BLACK);
 
-    y = h + fontHeight_4 + fontHeight_2 + fontHeight_2 + 2;
-    x = xoffset + tft->width() / 2;
-    //   x += tft->drawNumber(rules->numberOfBalancingModules, x, y);
-    // blank out gap between numbers
-    tft->fillRect(x, y, tft->width() - x, fontHeight_4, TFT_BLACK);
+    x = 2 + w / 2;
+    y = fontHeight_2 + fontHeight_2 + fontHeight_2 + h + 2;
+    x += tft->drawNumber(0, x, y);
+    tft->fillRect(x, y, w - x, fontHeight_2, TFT_BLACK);
 }
 
 void DISPLAY_WifiDetails(void)

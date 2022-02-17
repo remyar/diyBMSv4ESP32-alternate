@@ -16,6 +16,8 @@
 #define SERIAL_DEBUG Serial
 #define SERIAL_RS485 Serial1
 
+#define maximum_of_total_controllers 4
+
 //Total number of cells a single controler can handle (memory limitation)
 #define maximum_controller_cell_modules 128
 
@@ -24,6 +26,13 @@ typedef union
     float value;
     uint16_t word[2];
 } FloatUnionType;
+
+typedef union 
+{
+    uint8_t bytes[4];
+    uint16_t word[2];
+    uint32_t number;
+}UINT32UNION_t;
 
 enum RGBLED : uint8_t
 {
