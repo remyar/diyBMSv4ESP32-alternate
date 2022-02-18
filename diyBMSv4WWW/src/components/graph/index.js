@@ -10,7 +10,7 @@ function Graph(props) {
 
     let options = {};
 
-    if (props.id == undefined || props.id == "graph1") {
+    //if (props.id == undefined || props.id == "graph1") {
         options = {
             tooltip: {
                 show: true,
@@ -270,7 +270,7 @@ function Graph(props) {
                 }
             ]
         };
-    }
+  //  }
 
     return <ReactECharts notMerge={false} id={props.id || "graph"} option={options} style={{ width: "100%", height: "100%" }} />
 }

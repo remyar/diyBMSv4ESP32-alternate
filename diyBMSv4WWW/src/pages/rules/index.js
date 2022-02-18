@@ -11,6 +11,7 @@ import RuleSettings from '../../components/ruleSettings';
 
 function Rules(props) {
 
+    const _settings = props.globalState.settings || {};
     const _rules = props.globalState.rules || {};
 
     const [defaultrelay, setDefaultRelay] = useState(_rules.relaydefault);
@@ -18,21 +19,21 @@ function Rules(props) {
     const [rules, setRules] = useState(_rules.rules);
 
     const rulesTab = [
-        { label: "Emergency stop", hidden: true, },
-        { label: "Internal BMS error", hidden: true },
-        { label: "Current monitoring over current (Amps)", min: 0, max: 5000, step: 1 },
+        //{ label: "Emergency stop", hidden: true, },
+        //{ label: "Internal BMS error", hidden: true },
+        //{ label: "Current monitoring over current (Amps)", min: 0, max: 5000, step: 1 },
         { label: "Individual cell over voltage (mV)", min: 1800, max: 4500, step: 10 },
         { label: "Cell under voltage (mV)", min: 1800, max: 4500, step: 10 },
         { label: "Module over temperature (internal) °C", min: 0, max: 90, step: 1 },
         { label: "Module under temperature (internal) °C", min: 0, max: 90, step: 1 },
         { label: "Cell over temperature (external) °C", min: 0, max: 90, step: 1 },
         { label: "Cell under temperature (external) °C", min: 0, max: 90, step: 1 },
-        { label: "Current monitor over voltage (mV)", min: 1000, step: 100 },
-        { label: "Current monitor under voltage (mV)", min: 1000, step: 100 },
+        //{ label: "Current monitor over voltage (mV)", min: 1000, step: 100 },
+        //{ label: "Current monitor under voltage (mV)", min: 1000, step: 100 },
         { label: "Pack over voltage (mV)", min: 1000, step: 100 },
         { label: "Pack under voltage (mV)", min: 1000, step: 100 },
-        { label: "Timer 2", min: 0, max: 1440, step: 1 },
-        { label: "Timer 1", min: 0, max: 1440, step: 1 },
+        //{ label: "Timer 2", min: 0, max: 1440, step: 1 },
+        //{ label: "Timer 1", min: 0, max: 1440, step: 1 },
     ];
 
     return <div className="page" id="rulesPage">
@@ -61,7 +62,42 @@ function Rules(props) {
         </div>
         <div className="region">
             <div id="form">
-                <div className="settings">
+                {(() => {
+                    let options = [];
+                    for (let n = 0; n < _settings.totalControllers; n++) {
+                        options.push(<div className="settings">
+                            <h2 id="mb1">Controller N° {n + 1}</h2>
+                            <table style={{paddingTop : '5px'}}>
+                                <thead>
+                                    <tr>
+                                        <th id="rf1">Rule</th>
+                                        <th id="rf2">Trigger value</th>
+                                        <th id="rf3">Reset value</th>
+                                        <th id="rf4">Relay state</th>
+                                    </tr>
+                                </thead>
+                                <tbody >
+                                    {rulesTab.map((_r, idx) => {
+                                        return <RuleSettings
+                                            id={idx}
+                                            label={_r.label}
+                                            hidden={_r.hidden && _r.hidden ? true : false}
+                                            min={_r.min}
+                                            max={_r.max}
+                                            step={_r.step}
+                                            rule={rules[idx]}
+                                            onChange={(rule) => {
+                                                rules[idx] = rule;
+                                            }}
+                                        />
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>);
+                    }
+                    return options;
+                })()}
+                {/*   <div className="settings">
                     <table>
                         <thead>
                             <tr>
@@ -187,25 +223,25 @@ function Rules(props) {
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                                    </div>*/}
                 <button style={{ cursor: 'pointer' }} onClick={() => {
                     let obj = {};
-                    rules.forEach((rule , idx) => {
+                    rules.forEach((rule, idx) => {
                         obj["rule" + idx + "value"] = rule.value;
                         obj["rule" + idx + "hysteresis"] = rule.hysteresis;
-                        rule.relays.forEach((relay , _idx) => {
+                        rule.relays.forEach((relay, _idx) => {
                             var relay_value = "X";
                             if (relay === "On") { relay_value = "On"; }
                             if (relay === "Off") { relay_value = "Off"; }
-                            obj["rule" + idx + "relay" + (_idx+1)] = relay_value;
+                            obj["rule" + idx + "relay" + (_idx + 1)] = relay_value;
                         });
 
-                        relaytype.forEach((_relaiType , idx) => {
-                            obj["relaytype" + (idx+1)] = _relaiType;
+                        relaytype.forEach((_relaiType, idx) => {
+                            obj["relaytype" + (idx + 1)] = _relaiType;
                         });
 
-                        defaultrelay.forEach((_defaultrelay , idx) => {
-                            obj["defaultrelay" + (idx+1)] = _defaultrelay;
+                        defaultrelay.forEach((_defaultrelay, idx) => {
+                            obj["defaultrelay" + (idx + 1)] = _defaultrelay;
                         });
 
                     });

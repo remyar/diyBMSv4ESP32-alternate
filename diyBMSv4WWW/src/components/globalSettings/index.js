@@ -11,8 +11,8 @@ function GlobalSettings(props) {
     const [BypassOverTempShutdown, setBypassOverTempShutdown] = useState(65);
     const [BypassThresholdmV, setBypassThresholdmV] = useState(4100);
 
-    return <div id="globalConfig" className="region">
-        <h2>Global Settings</h2>
+    return <div id="globalConfig" className="region" style={{width:'100%'}}>
+        <h2>Global Settings Controller N° {props.idxController + 1}</h2>
         <p id="gc1">Configure all modules to use following parameters:</p>
         <div id="form">
             <div className="settings">

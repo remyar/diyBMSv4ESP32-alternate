@@ -58,7 +58,7 @@ TFT_eSPI tft = TFT_eSPI();
 void TFT_Init(void)
 {
     tft.init();
-    //tft.initDMA(); // Initialise the DMA engine (tested with STM32F446 and STM32F767)
+    tft.initDMA(); // Initialise the DMA engine (tested with STM32F446 and STM32F767)
     tft.getSPIinstance().setHwCs(false);
     tft.setRotation(3);
 }

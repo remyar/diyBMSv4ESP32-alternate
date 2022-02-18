@@ -18,6 +18,7 @@
 #include "./monitor2.json.h"
 #include "./monitor3.json.h"
 #include "./modules.json.h"
+#include "./identify.module h"
 #include "./storage.json.h"
 #include "./settings.json.h"
 #include "./rules.json.h"
@@ -291,6 +292,7 @@ void DIYBMSServer_Begin(void)
         server->on("/storage.json", HTTP_GET, STORAGE_JSON);
         server->on("/settings.json", HTTP_GET, SETTINGS_JSON);
         server->on("/rules.json", HTTP_GET, RULES_JSON);
+        server->on("/identifyModule.json", HTTP_GET, IDENTIFY_MODULE);
 
         server->on("/savebankconfig.json", HTTP_POST, saveBankConfiguration);
         WEBSERVER_Begin();

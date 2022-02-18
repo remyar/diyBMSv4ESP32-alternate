@@ -31,6 +31,7 @@
 //================================================================================================//
 typedef enum {
     RTU_READ_CONTROLLER_VOLTAGE_AND_STATUS = 0,
+    RTU_READ_CMI_INFORMATION,
 }e_RTU_STATE;
 
 //================================================================================================//
@@ -57,6 +58,7 @@ typedef struct {
 bool MODBUS_TaskInit(void);
 void MODBUS_TaskRun(void);
 void MODBUS_SendConfiguration(uint8_t idxController);
+void MODBUS_SendIdentifyModule(uint8_t idxController , uint8_t idxModule);
 
 CellModuleInfo* CMI_Get(uint8_t controllerId , uint8_t cmiId);
 

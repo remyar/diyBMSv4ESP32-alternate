@@ -17,6 +17,7 @@
 #include "../typedefs.h"
 #include "../settings/settings.h"
 #include "./web_server.h"
+#include "../modbus/modbus.h"
 
 //================================================================================================//
 //                                            DEFINES                                             //
