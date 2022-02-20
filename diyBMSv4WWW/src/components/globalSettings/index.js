@@ -8,8 +8,8 @@ import actionsBms from '../../actions/bms';
 
 function GlobalSettings(props) {
 
-    const [BypassOverTempShutdown, setBypassOverTempShutdown] = useState(65);
-    const [BypassThresholdmV, setBypassThresholdmV] = useState(4100);
+    const [BypassOverTempShutdown, setBypassOverTempShutdown] = useState(props.globalState.settings['BypassOverTempShutdown_' + props.idxController]);
+    const [BypassThresholdmV, setBypassThresholdmV] = useState(props.globalState.settings['BypassThresholdmV_' + props.idxController]);
 
     return <div id="globalConfig" className="region" style={{width:'100%'}}>
         <h2>Global Settings Controller N° {props.idxController + 1}</h2>
@@ -30,7 +30,7 @@ function GlobalSettings(props) {
                 </div>
             </div>
             <button style={{ cursor: "pointer" }} id="globalSettingsButton" onClick={() => {
-                props.dispatch(actionsBms.setGlobalSettings({ BypassOverTempShutdown, BypassThresholdmV }));
+                props.onClick && props.onClick(BypassOverTempShutdown , BypassThresholdmV);
             }}>Save settings</button>
         </div>
     </div>

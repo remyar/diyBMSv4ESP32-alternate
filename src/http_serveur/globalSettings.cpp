@@ -12,8 +12,7 @@
 //                                        FICHIERS INCLUS                                         //
 //================================================================================================//
 
-#include "./modules.json.h"
-#include "../sdcard/sdcard.h"
+#include "./globalSettings.h"
 #include "./printStream.h"
 
 //================================================================================================//
@@ -47,48 +46,7 @@
 //------------------------------------------------------------------------------------------------//
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
-void fileSystemListDirectory(AsyncResponseStream *response, fs::FS &fs, const char *dirname, uint8_t levels)
-{
 
-  File root = fs.open(dirname);
-  if (!root)
-  {
-    ESP_LOGE(TAG, "failed to open dir");
-    return;
-  }
-  if (!root.isDirectory())
-  {
-    ESP_LOGE(TAG, "not a dir");
-    return;
-  }
-
-  File file = root.openNextFile();
-  while (file)
-  {
-    if (file.isDirectory())
-    {
-      // Hide the diybms folder where the config files are kept
-      if (levels && String(file.name()).startsWith("/diybms") == false)
-      {
-        fileSystemListDirectory(response, fs, file.name(), levels - 1);
-        response->print(',');
-      }
-    }
-    else
-    {
-      response->print('\"');
-      response->print(file.name());
-      response->print('\"');
-
-      response->print(',');
-    }
-
-    file = root.openNextFile();
-  }
-
-  // Trailing null to cope with trailing ','
-  response->print("null");
-}
 //------------------------------------------------------------------------------------------------//
 //---                                        Partagees                                         ---//
 //------------------------------------------------------------------------------------------------//
@@ -98,81 +56,41 @@ void fileSystemListDirectory(AsyncResponseStream *response, fs::FS &fs, const ch
 //
 // DESCRIPTION : Initialisation de la carte : GPIO, Clocks, Interruptions...
 //--------------------------------------------------------------------------------------------------
-void STORAGE_JSON(AsyncWebServerRequest *request)
+void GLOBALSETTINGS_JSON(AsyncWebServerRequest *request)
 {
-  diybms_eeprom_settings *_mysettings = SETTINGS_Get();
-  SDFS *SD = SDCARD_GetSD();
-  sdcard_info info;
-
-  info.available = SD->cardType() ? true : false;
-
-  // Convert to KiB
-  info.totalkilobytes = SD->totalBytes() / 1024;
-  info.usedkilobytes = SD->usedBytes() / 1024;
-
-  /*
-      info.flash_totalkilobytes = LITTLEFS.totalBytes() / 1024;
-      info.flash_usedkilobytes = LITTLEFS.usedBytes() / 1024;
-  */
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-
-  response->print("{\"storage\":{");
-  PrintStreamCommaBoolean(response, "\"logging\":", _mysettings->loggingEnabled);
-  PrintStreamComma(response, "\"frequency\":", _mysettings->loggingFrequencySeconds);
-
-  response->print("\"sdcard\":{");
-  PrintStreamCommaBoolean(response, "\"available\":", info.available);
-  PrintStreamComma(response, "\"total\":", info.totalkilobytes);
-  PrintStreamComma(response, "\"used\":", info.usedkilobytes);
-  response->print("\"files\":[");
-  // File listing goes here
-  if (info.available)
-  {
-    fileSystemListDirectory(response, *SD, "/", 2);
-  }
-  response->print(']');
-
-  response->print("},\"flash\":{");
-  PrintStreamComma(response, "\"total\":", info.flash_totalkilobytes);
-  PrintStreamComma(response, "\"used\":", info.flash_usedkilobytes);
-
-  response->print("\"files\":[");
-  response->print(']');
-  response->print("}");
-
-  // The END...
-  response->print('}');
-  response->print('}');
-
-  response->addHeader("Cache-Control", "no-store");
-  request->send(response);
-}
-
-void STORAGE_Save(AsyncWebServerRequest *request)
-{
-  diybms_eeprom_settings *_mysettings = SETTINGS_Get();
-  if (request->hasParam("loggingEnabled", true))
-  {
-    AsyncWebParameter *p1 = request->getParam("loggingEnabled", true);
-    _mysettings->loggingEnabled = p1->value().equals("on") ? true : false;
-  }
-
-  if (request->hasParam("loggingFreq", true))
-  {
-    AsyncWebParameter *p1 = request->getParam("loggingFreq", true);
-    _mysettings->loggingFrequencySeconds = p1->value().toInt();
-    // Validate
-    if (_mysettings->loggingFrequencySeconds < 15 || _mysettings->loggingFrequencySeconds > 600)
+    diybms_eeprom_settings *_mySettings = SETTINGS_Get();
+    if (request->hasParam("BypassOverTempShutdown", true) && request->hasParam("BypassThresholdmV", true) && request->hasParam("monduleId", true))
     {
-      _mysettings->loggingFrequencySeconds = 15;
+        AsyncWebParameter *p0 = request->getParam("monduleId", true);
+        uint8_t ctrlId = p0->value().toInt();
+
+        AsyncWebParameter *p1 = request->getParam("BypassOverTempShutdown", true);
+        _mySettings->BypassOverTempShutdown[ctrlId] = p1->value().toInt();
+
+        AsyncWebParameter *p2 = request->getParam("BypassThresholdmV", true);
+        _mySettings->BypassThresholdmV[ctrlId] = p2->value().toInt();
+
+        SETTINGS_Save();
+
+        for (uint8_t i = 0; i < (_mySettings->totalNumberOfSeriesModules[ctrlId] * _mySettings->totalNumberOfBanks[ctrlId]); i++)
+        {
+            if (CMI_Get(ctrlId, i)->valid)
+            {
+                CMI_Get(ctrlId, i)->BypassThresholdmV = _mySettings->BypassThresholdmV[ctrlId];
+                CMI_Get(ctrlId, i)->BypassOverTempShutdown = _mySettings->BypassOverTempShutdown[ctrlId];
+            }
+        }
+
+        MODBUS_SendGlobalSettings(ctrlId);
+
+        AsyncResponseStream *response = request->beginResponseStream("application/json");
+        StaticJsonDocument<100> doc;
+        doc["success"] = true;
+        serializeJson(doc, *response);
+        request->send(response);
     }
-  }
-
-  SETTINGS_Save();
-
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-  StaticJsonDocument<100> doc;
-  doc["success"] = true;
-  serializeJson(doc, *response);
-  request->send(response);
+    else
+    {
+        request->send(500, "text/plain", "Missing parameters");
+    }
 }

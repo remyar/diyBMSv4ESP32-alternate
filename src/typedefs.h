@@ -90,7 +90,7 @@ enum RelayType : uint8_t
 };
 
 //Number of rules as defined in Rules.h (enum Rule)
-#define RELAY_RULES 15
+#define RELAY_RULES 8
 
 //Number of relays on board (4)
 #define RELAY_TOTAL 4
@@ -123,8 +123,8 @@ struct diybms_eeprom_settings
     float graph_voltagehigh;
     float graph_voltagelow;
 
-    uint8_t BypassOverTempShutdown;
-    uint16_t BypassThresholdmV;
+    uint8_t BypassOverTempShutdown[maximum_of_total_controllers];
+    uint16_t BypassThresholdmV[maximum_of_total_controllers];
 
     int8_t timeZone;        // = 0;
     int8_t minutesTimeZone; // = 0;

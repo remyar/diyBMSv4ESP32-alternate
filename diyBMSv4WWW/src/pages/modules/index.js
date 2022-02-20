@@ -33,7 +33,7 @@ function Modules(props) {
                 let pwm = [];
                 let badpacket = [];
                 let pktrecvd = [];
-                let balcurrent=[];
+                let balcurrent = [];
 
                 let bankNumber = 0;
                 let cellsInBank = 0;
@@ -73,7 +73,7 @@ function Modules(props) {
                     }
                 }
 
-                _retValComp.push(<div className="region wide" style={{width:'100%'}}>
+                _retValComp.push(<div className="region wide" style={{ width: '100%' }}>
                     <h2 style={{ paddingBottom: "15px" }}>Controller N° {n + 1}</h2>
                     <table id="modulesTable">
                         <thead>
@@ -130,7 +130,7 @@ function Modules(props) {
                                     </td>
                                     <td>
                                         <button style={{ cursor: "pointer" }} onClick={() => {
-                                            props.dispatch(actionsBms.identifyModule(n,index));
+                                            props.dispatch(actionsBms.identifyModule(n, index));
                                         }}>Identify</button>
                                         <button style={{ cursor: "pointer" }} onClick={async () => {
                                             setDislayConfiguration({ display: false, cellid: index });
@@ -143,7 +143,9 @@ function Modules(props) {
                         </tbody>
                     </table>
                 </div>);
-                _retValComp.push(<GlobalSettings idxController={n}/>);
+                _retValComp.push(<GlobalSettings idxController={n} onClick={(BypassOverTempShutdown, BypassThresholdmV) => {
+                    props.dispatch(actionsBms.setGlobalSettings({ monduleId : n , BypassOverTempShutdown, BypassThresholdmV }));
+                }} />);
             }
             return _retValComp;
         })()}
@@ -218,7 +220,7 @@ function Modules(props) {
             {displayConfiguration.display && <ModuleConfig cellid={displayConfiguration.cellid} />}
         </div>
                 */}
-        
+
     </div>;
 }
 

@@ -84,9 +84,15 @@ bool SETTINGS_Load(void)
         for (int i = 0; i < _mysettings.totalControllers; i++)
         {
             _mysettings.totalNumberOfSeriesModules[i] = doc["totalNumberOfSeriesModules_" + String(i)].as<uint8_t>();
-            _mysettings.totalNumberOfBanks[i]= doc["totalNumberOfBanks_" + String(i)].as<uint8_t>();
-            _mysettings.baudRate[i]= doc["baudRate_" + String(i)].as<uint8_t>();
+            _mysettings.totalNumberOfBanks[i] = doc["totalNumberOfBanks_" + String(i)].as<uint8_t>();
+            _mysettings.baudRate[i] = doc["baudRate_" + String(i)].as<uint8_t>();
+
+            _mysettings.BypassOverTempShutdown[i] = doc["BypassOverTempShutdown_" + String(i)].as<uint8_t>();
+            _mysettings.BypassThresholdmV[i] = doc["BypassThresholdmV_" + String(i)].as<uint16_t>();
         }
+
+        _mysettings.loggingEnabled = doc["loggingEnabled"];
+        _mysettings.loggingFrequencySeconds = doc["loggingFrequencySeconds"];
     }
     else
     {
@@ -116,7 +122,7 @@ void SETTINGS_Save(void)
     StaticJsonDocument<4096> doc;
 
     Serial.println("on sauvegarde");
-    
+
     doc["wifi_ssid"] = _mysettings.wifi_ssid;
     doc["wifi_psk"] = _mysettings.wifi_psk;
     doc["language"] = _mysettings.language;
@@ -128,7 +134,13 @@ void SETTINGS_Save(void)
         doc["totalNumberOfSeriesModules_" + String(i)] = _mysettings.totalNumberOfSeriesModules[i];
         doc["totalNumberOfBanks_" + String(i)] = _mysettings.totalNumberOfBanks[i];
         doc["baudRate_" + String(i)] = _mysettings.baudRate[i];
+
+        doc["BypassOverTempShutdown_" + String(i)] = _mysettings.BypassOverTempShutdown[i];
+        doc["BypassThresholdmV_" + String(i)] = _mysettings.BypassThresholdmV[i];
     }
+
+    doc["loggingEnabled"] = _mysettings.loggingEnabled;
+    doc["loggingFrequencySeconds"] = _mysettings.loggingFrequencySeconds;
 
     if (SDCARD_IsMounted())
     {
@@ -138,10 +150,4 @@ void SETTINGS_Save(void)
 
         f.close();
     }
-}
-
-uint32_t TotalNumberOfCells(void)
-{
-    // return _mysettings.totalNumberOfBanks * _mysettings.totalNumberOfSeriesModules;
-    return 1;
 }

@@ -14,10 +14,11 @@ function Rules(props) {
     const _settings = props.globalState.settings || {};
     const _rules = props.globalState.rules || {};
 
+    /*
     const [defaultrelay, setDefaultRelay] = useState(_rules.relaydefault);
     const [relaytype, setRelaytype] = useState(_rules.relaytype);
     const [rules, setRules] = useState(_rules.rules);
-
+*/
     const rulesTab = [
         //{ label: "Emergency stop", hidden: true, },
         //{ label: "Internal BMS error", hidden: true },
@@ -85,9 +86,9 @@ function Rules(props) {
                                             min={_r.min}
                                             max={_r.max}
                                             step={_r.step}
-                                            rule={rules[idx]}
+                                            rule={_rules["rules_" + n][idx]}
                                             onChange={(rule) => {
-                                                rules[idx] = rule;
+                                                _rules["rules_" + n][idx] = rule;
                                             }}
                                         />
                                     })}
@@ -225,7 +226,7 @@ function Rules(props) {
                     </table>
                                     </div>*/}
                 <button style={{ cursor: 'pointer' }} onClick={() => {
-                    let obj = {};
+                  /*  let obj = {};
                     rules.forEach((rule, idx) => {
                         obj["rule" + idx + "value"] = rule.value;
                         obj["rule" + idx + "hysteresis"] = rule.hysteresis;
@@ -245,7 +246,7 @@ function Rules(props) {
                         });
 
                     });
-                    props.dispatch(actionsBms.setRules(obj));
+                    props.dispatch(actionsBms.setRules(obj));*/
                 }}>Save rules</button>
             </div>
         </div>

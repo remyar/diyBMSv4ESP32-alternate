@@ -233,8 +233,10 @@ void MODBUS_SendConfiguration(uint8_t idxController)
 
     node->setTransmitBuffer(0, _mySettings->totalNumberOfBanks[idxController]);
     node->setTransmitBuffer(1, _mySettings->totalNumberOfSeriesModules[idxController]);
+    node->setTransmitBuffer(2, _mySettings->BypassOverTempShutdown[idxController]);
+    node->setTransmitBuffer(3, _mySettings->BypassThresholdmV[idxController]);
 
-    uint8_t result = sRtuSlave[idxController].slave->writeMultipleRegisters(0xFF00 | CONTROLLER_REPORT_CONFIGURATION, 2);
+    uint8_t result = sRtuSlave[idxController].slave->writeMultipleRegisters(0xFF00 | CONTROLLER_REPORT_CONFIGURATION, 4);
     if (result == sRtuSlave[idxController].slave->ku8MBSuccess)
     {
         Serial.println("write ok");
@@ -257,4 +259,8 @@ void MODBUS_SendIdentifyModule(uint8_t idxController, uint8_t idxModule)
     {
         Serial.println("Write false");
     }
+}
+
+void MODBUS_SendGlobalSettings(uint8_t idxController){
+    MODBUS_SendConfiguration(idxController);
 }

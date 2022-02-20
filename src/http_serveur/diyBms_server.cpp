@@ -19,6 +19,7 @@
 #include "./monitor3.json.h"
 #include "./modules.json.h"
 #include "./identify.module h"
+#include "./globalSettings.h"
 #include "./storage.json.h"
 #include "./settings.json.h"
 #include "./rules.json.h"
@@ -201,37 +202,42 @@ String TemplateProcessor(const String &var)
 
 void SendSuccess(AsyncWebServerRequest *request)
 {
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-  StaticJsonDocument<100> doc;
-  doc["success"] = true;
-  serializeJson(doc, *response);
-  request->send(response);
+    AsyncResponseStream *response = request->beginResponseStream("application/json");
+    StaticJsonDocument<100> doc;
+    doc["success"] = true;
+    serializeJson(doc, *response);
+    request->send(response);
 }
 
 void SendFailure(AsyncWebServerRequest *request)
 {
-  request->send(500, "text/plain", "Failed");
+    request->send(500, "text/plain", "Failed");
 }
 
 void saveBankConfiguration(AsyncWebServerRequest *request)
 {
     diybms_eeprom_settings *_mysettings = SETTINGS_Get();
 
-    if (request->hasParam("totalControllers", true)){
+    if (request->hasParam("totalControllers", true))
+    {
         AsyncWebParameter *p1 = request->getParam("totalControllers", true);
         _mysettings->totalControllers = p1->value().toInt();
     }
 
-    for ( int i = 0 ; i < _mysettings->totalControllers ; i++){
-        if (request->hasParam("totalSeriesModules_" + String(i), true)){
+    for (int i = 0; i < _mysettings->totalControllers; i++)
+    {
+        if (request->hasParam("totalSeriesModules_" + String(i), true))
+        {
             AsyncWebParameter *p1 = request->getParam("totalSeriesModules_" + String(i), true);
             _mysettings->totalNumberOfSeriesModules[i] = p1->value().toInt();
         }
-        if (request->hasParam("totalBanks_" + String(i), true)){
+        if (request->hasParam("totalBanks_" + String(i), true))
+        {
             AsyncWebParameter *p1 = request->getParam("totalBanks_" + String(i), true);
             _mysettings->totalNumberOfBanks[i] = p1->value().toInt();
         }
-        if (request->hasParam("baudrate_" + String(i), true)){
+        if (request->hasParam("baudrate_" + String(i), true))
+        {
             AsyncWebParameter *p1 = request->getParam("baudrate_" + String(i), true);
             _mysettings->baudRate[i] = p1->value().toInt();
         }
@@ -295,6 +301,9 @@ void DIYBMSServer_Begin(void)
         server->on("/identifyModule.json", HTTP_GET, IDENTIFY_MODULE);
 
         server->on("/savebankconfig.json", HTTP_POST, saveBankConfiguration);
+        server->on("/saveglobalsetting.json", HTTP_POST, GLOBALSETTINGS_JSON);
+        server->on("/savestorage.json", HTTP_POST, STORAGE_Save);
+
         WEBSERVER_Begin();
     }
 }

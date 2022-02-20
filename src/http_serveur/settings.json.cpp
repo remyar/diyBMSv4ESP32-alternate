@@ -76,6 +76,9 @@ void SETTINGS_JSON(AsyncWebServerRequest *request)
         settings["totalNumberOfSeriesModules_" + String(i)] = _mysettings->totalNumberOfSeriesModules[i];
         settings["totalNumberOfBanks_" + String(i)] = _mysettings->totalNumberOfBanks[i];
         settings["baudRate_" + String(i)] = _mysettings->baudRate[i];
+
+        settings["BypassOverTempShutdown_" + String(i)] = _mysettings->BypassOverTempShutdown[i];
+        settings["BypassThresholdmV_" + String(i)] = _mysettings->BypassThresholdmV[i];
     }
 
     settings["NTPServerName"] = _mysettings->ntpServer;

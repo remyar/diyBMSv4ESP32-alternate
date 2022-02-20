@@ -8,8 +8,8 @@
 //                                                                                                //
 //================================================================================================//
 
-#ifndef _STORAGE_JSON_H_
-#define _STORAGE_JSON_H_
+#ifndef _GLOBALSETTINGS_H_
+#define _GLOBALSETTINGS_H_
 
 //================================================================================================//
 //                                        FICHIERS INCLUS                                         //
@@ -42,6 +42,6 @@
 //------------------------------------------------------------------------------------------------//
 //---                                        Fonctions                                         ---//
 //------------------------------------------------------------------------------------------------//
-void STORAGE_JSON(AsyncWebServerRequest *request);
-void STORAGE_Save(AsyncWebServerRequest *request);
+void GLOBALSETTINGS_JSON(AsyncWebServerRequest *request);
+
 #endif //--- _BOARD_

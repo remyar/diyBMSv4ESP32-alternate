@@ -35,7 +35,7 @@
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
 static bool _isMounted = false;
-static bool _isLogging = false;
+static unsigned long _cpt = 0;
 //------------------------------------------------------------------------------------------------//
 //---                                        Partagees                                         ---//
 //------------------------------------------------------------------------------------------------//
@@ -102,6 +102,7 @@ bool SDCARD_IsMounted(void)
 
 void SDCARD_TaskRun(void)
 {
+    diybms_eeprom_settings *_mysettings = SETTINGS_Get();
     if ((_isMounted == true) && SD.exists("/extract.tar"))
     {
         TarUnpacker *TARUnpacker = new TarUnpacker();
@@ -120,8 +121,13 @@ void SDCARD_TaskRun(void)
         SD.remove("/extract.tar");
     }
 
-    if ((_isMounted == true) && (_isLogging == true))
+    if ((_isMounted == true) && (_mysettings->loggingEnabled == true))
     {
+        _cpt += 15;
+        if ( (_cpt % _mysettings->loggingFrequencySeconds) != 0 ){
+            return;
+        }
+        
       /*  struct tm timeinfo;
         if (getLocalTime(&timeinfo, 1))
         {
