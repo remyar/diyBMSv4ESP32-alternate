@@ -1,6 +1,7 @@
 import getMonitor2 from "./get.monitor2";
 import getMonitor3 from "./get.monitor3";
 import getModule from "./get.modules";
+import getFile from "./get.file";
 import getStorage from "./get.storage";
 import getSettings from "./get.settings";
 import setGlobalSettings from "./set.globalSettings";
@@ -24,6 +25,7 @@ export default {
     getMonitor3,
     getSettings,
     getModule,
+    getFile,
     getStorage,
     setGlobalSettings,
     setBankSettings,

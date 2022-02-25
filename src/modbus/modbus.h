@@ -32,6 +32,10 @@
 typedef enum {
     RTU_READ_CONTROLLER_VOLTAGE_AND_STATUS = 0,
     RTU_READ_CMI_INFORMATION,
+    RTU_SEND_RULES_INFORMATION,
+    RTU_SEND_RELAY_INFORMATION,
+    RTU_SEND_RELAY_DEFAULT_INFORMATION,
+    RTU_MAX
 }e_RTU_STATE;
 
 //================================================================================================//
@@ -60,6 +64,7 @@ void MODBUS_TaskRun(void);
 void MODBUS_SendConfiguration(uint8_t idxController);
 void MODBUS_SendIdentifyModule(uint8_t idxController , uint8_t idxModule);
 void MODBUS_SendGlobalSettings(uint8_t idxController);
+void MODBUS_SendRules(void);
 
 CellModuleInfo* CMI_Get(uint8_t controllerId , uint8_t cmiId);
 

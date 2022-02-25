@@ -110,15 +110,15 @@ struct diybms_eeprom_settings
     uint8_t totalNumberOfSeriesModules[maximum_of_total_controllers];
     uint16_t baudRate[maximum_of_total_controllers];
 
-    uint32_t rulevalue[RELAY_RULES];
-    uint32_t rulehysteresis[RELAY_RULES];
+    uint32_t rulevalue[maximum_of_total_controllers][RELAY_RULES];
+    uint32_t rulehysteresis[maximum_of_total_controllers][RELAY_RULES];
 
     //Use a bit pattern to indicate the relay states
-    RelayState rulerelaystate[RELAY_RULES][RELAY_TOTAL];
+    RelayState rulerelaystate[maximum_of_total_controllers][RELAY_RULES][RELAY_TOTAL];
     //Default starting state
-    RelayState rulerelaydefault[RELAY_TOTAL];
+    RelayState rulerelaydefault[maximum_of_total_controllers][RELAY_TOTAL];
     //Default starting state for relay types
-    RelayType relaytype[RELAY_TOTAL];
+ //   RelayType relaytype[RELAY_TOTAL];
 
     float graph_voltagehigh;
     float graph_voltagelow;

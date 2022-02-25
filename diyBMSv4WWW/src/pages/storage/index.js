@@ -7,6 +7,8 @@ import { withSnackBar } from '../../providers/snackBar';
 
 import actionsBms from '../../actions/bms';
 
+import { saveAs } from "file-saver";
+
 function StoragePage(props) {
 
     const storage = props.globalState.storage || {};
@@ -25,7 +27,7 @@ function StoragePage(props) {
                 id="sdcard_total">{Number(storage.sdcard.total).toLocaleString()}</span>KiB
             <p>
                 <button style={{ cursor: 'pointer' }} type="button" id="unmount" onClick={() => {
-                    props.dispatch(actionsBms.setSdUnmount()).then(()=>{
+                    props.dispatch(actionsBms.setSdUnmount()).then(() => {
 
                     });
                 }}>Unmount</button>
@@ -36,15 +38,18 @@ function StoragePage(props) {
                     props.dispatch(actionsBms.setSaveWifi());
                 }}>Save Wifi</button>
                 <button style={{ cursor: 'pointer' }} type="button" id="saveconfig" onClick={() => {
-                    props.dispatch(actionsBms.setSaveConfig()).then(()=>{
-                        snackbar.success(intl.formatMessage({id: "save.success"}));
+                    props.dispatch(actionsBms.setSaveConfig()).then(() => {
+                        snackbar.success(intl.formatMessage({ id: "save.success" }));
                     });
-                }}>{intl.formatMessage({id: "save.configuration"})}</button>
+                }}>{intl.formatMessage({ id: "save.configuration" })}</button>
             </p>
             <ul id="sdcardfiles">
                 {storage.sdcard.files && storage.sdcard.files.map((file, index) => {
                     return file && <li>
-                        <a href={"download?type=sdcard&file=" + encodeURI(file)} >{file}</a>
+                        <a onClick={async () => {
+                            let blob = await props.dispatch(actionsBms.getFile(file));
+                            saveAs(blob, file.replace('/',''));
+                        }} style={{cursor : 'pointer'}}>{file}</a>
                     </li>
                 })}
             </ul>

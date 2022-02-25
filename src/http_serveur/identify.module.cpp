@@ -75,6 +75,7 @@ void IDENTIFY_MODULE(AsyncWebServerRequest *request)
         else
         {
             MODBUS_SendIdentifyModule(_ctrl,_cmi);
+            
             AsyncResponseStream *response = request->beginResponseStream("application/json");
             StaticJsonDocument<100> doc;
             doc["success"] = true;

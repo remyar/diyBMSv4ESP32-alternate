@@ -49,7 +49,7 @@ function NavBar(props) {
 
             <div className="overlay-content" style={{ textAlign : "center"}}>
                 <table style={{ marginLeft: "auto", marginRight: "auto" }}>
-                    <tr style={{ textAlign : "center"}}>
+                   {/* <tr style={{ textAlign : "center"}}>
                         <td>
                             <a id="integration">Integration</a>
                         </td>
@@ -63,7 +63,7 @@ function NavBar(props) {
                         <td>
                             <a id="victroncanbus" >Victron CANBUS BMS</a>
                         </td>
-                    </tr>
+        </tr>*/}
                     <tr>
                         <td>
                             <a style={{ cursor: 'pointer' }} id="storage" onClick={()=>{
@@ -72,11 +72,11 @@ function NavBar(props) {
                             }}>Storage</a>
                         </td>
                     </tr>
-                    <tr>
+                 {/*   <tr>
                         <td>
                             <a id="avrprogrammer" >AVR Programmer</a>
                         </td>
-                    </tr>
+                    </tr>*/}
                     <tr>
                         <td>
                             <a style={{ cursor: 'pointer' }} id="about" onClick={()=>{

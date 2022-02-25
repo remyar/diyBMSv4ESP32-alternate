@@ -89,6 +89,21 @@ bool SETTINGS_Load(void)
 
             _mysettings.BypassOverTempShutdown[i] = doc["BypassOverTempShutdown_" + String(i)].as<uint8_t>();
             _mysettings.BypassThresholdmV[i] = doc["BypassThresholdmV_" + String(i)].as<uint16_t>();
+
+            for (int rule = 0; rule < RELAY_RULES; rule++)
+            {
+                for (int relay = 0; relay < RELAY_TOTAL; relay++)
+                {
+                    _mysettings.rulerelaystate[i][rule][relay] = doc["rule_" + String(i) + "_" + String(rule) + "_relay_" + String(relay)];
+                }
+                _mysettings.rulevalue[i][rule] = doc["rule_" + String(i) + "_" + String(rule) + "_value"];
+                _mysettings.rulehysteresis[i][rule] = doc["rule_" + String(i) + "_" + String(rule) + "_hysteresis"];
+            }
+
+            for (uint8_t relay = 0; relay < RELAY_TOTAL; relay++)
+            {
+                _mysettings.rulerelaydefault[i][relay] =  doc["relaydefault_" + String(i) + "_" + String(relay)];
+            }
         }
 
         _mysettings.loggingEnabled = doc["loggingEnabled"];
@@ -137,6 +152,21 @@ void SETTINGS_Save(void)
 
         doc["BypassOverTempShutdown_" + String(i)] = _mysettings.BypassOverTempShutdown[i];
         doc["BypassThresholdmV_" + String(i)] = _mysettings.BypassThresholdmV[i];
+
+        for (int rule = 0; rule < RELAY_RULES; rule++)
+        {
+            for (int relay = 0; relay < RELAY_TOTAL; relay++)
+            {
+                doc["rule_" + String(i) + "_" + String(rule) + "_relay_" + String(relay)] = _mysettings.rulerelaystate[i][rule][relay];
+            }
+            doc["rule_" + String(i) + "_" + String(rule) + "_value"] = _mysettings.rulevalue[i][rule];
+            doc["rule_" + String(i) + "_" + String(rule) + "_hysteresis"] = _mysettings.rulehysteresis[i][rule];
+        }
+
+        for (uint8_t relay = 0; relay < RELAY_TOTAL; relay++)
+        {
+            doc["relaydefault_" + String(i) + "_" + String(relay)] = _mysettings.rulerelaydefault[i][relay];
+        }
     }
 
     doc["loggingEnabled"] = _mysettings.loggingEnabled;

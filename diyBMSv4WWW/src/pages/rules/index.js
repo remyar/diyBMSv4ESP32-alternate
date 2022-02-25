@@ -3,6 +3,7 @@ import { injectIntl } from 'react-intl';
 
 import { withNavigation } from '../../providers/navigation';
 import { withStoreProvider } from '../../providers/StoreProvider';
+import { withSnackBar } from '../../providers/snackBar';
 
 import actionsBms from '../../actions/bms';
 
@@ -68,7 +69,7 @@ function Rules(props) {
                     for (let n = 0; n < _settings.totalControllers; n++) {
                         options.push(<div className="settings">
                             <h2 id="mb1">Controller N° {n + 1}</h2>
-                            <table style={{paddingTop : '5px'}}>
+                            <table style={{ paddingTop: '5px' }}>
                                 <thead>
                                     <tr>
                                         <th id="rf1">Rule</th>
@@ -92,164 +93,104 @@ function Rules(props) {
                                             }}
                                         />
                                     })}
+                                    <tr>
+                                        <td><label for="defaultvalue">Relay default</label></td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td className="relayset">
+                                            <select id="defaultrelay1" name="defaultrelay1" defaultValue={(() => {
+                                                var relay_value = "X";
+                                                if (_rules["relaydefault_"+n][0] === true) { relay_value = "On"; }
+                                                if (_rules["relaydefault_"+n][0] === false) { relay_value = "Off"; }
+                                                return relay_value;
+                                            })()}
+                                                onChange={(event) => {
+                                                    _rules["relaydefault_"+n][0] = event.target.value == "On" ? true : false;
+                                                    //setDefaultRelay(defaultrelay);
+                                                }}
+                                            >
+                                                <option>On</option>
+                                                <option>Off</option>
+                                            </select>
+                                            <select id="defaultrelay2" name="defaultrelay2" defaultValue={(() => {
+                                                var relay_value = "X";
+                                                if (_rules["relaydefault_"+n][1] === true) { relay_value = "On"; }
+                                                if (_rules["relaydefault_"+n][1] === false) { relay_value = "Off"; }
+                                                return relay_value;
+                                            })()}
+                                                onChange={(event) => {
+                                                    _rules["relaydefault_"+n][1] = event.target.value == "On" ? true : false;
+                                                   // setDefaultRelay(defaultrelay);
+                                                }}
+                                            >
+                                                <option >On</option>
+                                                <option >Off</option>
+                                            </select>
+                                            <select id="defaultrelay3" name="defaultrelay3" defaultValue={(() => {
+                                                var relay_value = "X";
+                                                if (_rules["relaydefault_"+n][2] === true) { relay_value = "On"; }
+                                                if (_rules["relaydefault_"+n][2] === false) { relay_value = "Off"; }
+                                                return relay_value;
+                                            })()}
+                                                onChange={(event) => {
+                                                    _rules["relaydefault_"+n][2] = event.target.value == "On" ? true : false;
+                                                 //   setDefaultRelay(defaultrelay);
+                                                }}>
+                                                <option>On</option>
+                                                <option>Off</option>
+                                            </select>
+                                            <select id="defaultrelay4" name="defaultrelay4" defaultValue={(() => {
+                                                var relay_value = "X";
+                                                if (_rules["relaydefault_"+n][3] === true) { relay_value = "On"; }
+                                                if (_rules["relaydefault_"+n][3] === false) { relay_value = "Off"; }
+                                                return relay_value;
+                                            })()}
+                                                onChange={(event) => {
+                                                    _rules["relaydefault_"+n][3] = event.target.value == "On" ? true : false;
+                                                    //setDefaultRelay(defaultrelay);
+                                                }}>
+                                                <option>On</option>
+                                                <option>Off</option>
+                                            </select>
+                                        </td>
+                                            </tr>
                                 </tbody>
                             </table>
                         </div>);
                     }
                     return options;
                 })()}
-                {/*   <div className="settings">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th id="rf1">Rule</th>
-                                <th id="rf2">Trigger value</th>
-                                <th id="rf3">Reset value</th>
-                                <th id="rf4">Relay state</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rulesTab.map((_r, idx) => {
-                                return <RuleSettings
-                                    id={idx}
-                                    label={_r.label}
-                                    hidden={_r.hidden && _r.hidden ? true : false}
-                                    min={_r.min}
-                                    max={_r.max}
-                                    step={_r.step}
-                                    rule={rules[idx]}
-                                    onChange={(rule) => {
-                                        rules[idx] = rule;
-                                    }}
-                                />
-                            })}
-                            <tr>
-                                <td><label for="defaultvalue">Relay default</label></td>
-                                <td>&nbsp;</td>
-                                <td>&nbsp;</td>
-                                <td className="relayset">
-                                    <select id="defaultrelay1" name="defaultrelay1" defaultValue={(() => {
-                                        var relay_value = "X";
-                                        if (defaultrelay[0] === true) { relay_value = "On"; }
-                                        if (defaultrelay[0] === false) { relay_value = "Off"; }
-                                        return relay_value;
-                                    })()}
-                                        onChange={(event) => {
-                                            defaultrelay[0] = event.target.value == "On" ? true : false;
-                                            setDefaultRelay(defaultrelay);
-                                        }}
-                                    >
-                                        <option>On</option>
-                                        <option>Off</option>
-                                    </select>
-                                    <select id="defaultrelay2" name="defaultrelay2" defaultValue={(() => {
-                                        var relay_value = "X";
-                                        if (defaultrelay[1] === true) { relay_value = "On"; }
-                                        if (defaultrelay[1] === false) { relay_value = "Off"; }
-                                        return relay_value;
-                                    })()}
-                                        onChange={(event) => {
-                                            defaultrelay[1] = event.target.value == "On" ? true : false;
-                                            setDefaultRelay(defaultrelay);
-                                        }}
-                                    >
-                                        <option >On</option>
-                                        <option >Off</option>
-                                    </select>
-                                    <select id="defaultrelay3" name="defaultrelay3" defaultValue={(() => {
-                                        var relay_value = "X";
-                                        if (defaultrelay[2] === true) { relay_value = "On"; }
-                                        if (defaultrelay[2] === false) { relay_value = "Off"; }
-                                        return relay_value;
-                                    })()}
-                                        onChange={(event) => {
-                                            defaultrelay[2] = event.target.value == "On" ? true : false;
-                                            setDefaultRelay(defaultrelay);
-                                        }}>
-                                        <option>On</option>
-                                        <option>Off</option>
-                                    </select>
-                                    <select id="defaultrelay4" name="defaultrelay4" defaultValue={(() => {
-                                        var relay_value = "X";
-                                        if (defaultrelay[3] === true) { relay_value = "On"; }
-                                        if (defaultrelay[3] === false) { relay_value = "Off"; }
-                                        return relay_value;
-                                    })()}
-                                        onChange={(event) => {
-                                            defaultrelay[3] = event.target.value == "On" ? true : false;
-                                            setDefaultRelay(defaultrelay);
-                                        }}>
-                                        <option>On</option>
-                                        <option>Off</option>
-                                    </select></td>
-                            </tr>
-                            <tr>
-                                <td><label for="relaytype">Relay type</label></td>
-                                <td>&nbsp;</td>
-                                <td>&nbsp;</td>
-                                <td className="relayset">
-                                    <select id="relaytype1" name="relaytype1" defaultValue={relaytype[0]}
-                                        onChange={(event) => {
-                                            relaytype[0] = event.target.value;
-                                            setRelaytype(relaytype);
-                                        }}>
-                                        <option>Std</option>
-                                        <option>Pulse</option>
-                                    </select>
-                                    <select id="relaytype2" name="relaytype2" defaultValue={relaytype[1]}
-                                        onChange={(event) => {
-                                            relaytype[1] = event.target.value;
-                                            setRelaytype(relaytype);
-                                        }}>
-                                        <option>Std</option>
-                                        <option>Pulse</option>
-                                    </select>
-                                    <select id="relaytype3" name="relaytype3" defaultValue={relaytype[2]}
-                                        onChange={(event) => {
-                                            relaytype[2] = event.target.value;
-                                            setRelaytype(relaytype);
-                                        }}>
-                                        <option>Std</option>
-                                        <option>Pulse</option>
-                                    </select>
-                                    <select id="relaytype4" name="relaytype4" defaultValue={relaytype[3]}
-                                        onChange={(event) => {
-                                            relaytype[3] = event.target.value;
-                                            setRelaytype(relaytype);
-                                        }}>
-                                        <option>Std</option>
-                                        <option>Pulse</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                                    </div>*/}
-                <button style={{ cursor: 'pointer' }} onClick={() => {
-                  /*  let obj = {};
-                    rules.forEach((rule, idx) => {
-                        obj["rule" + idx + "value"] = rule.value;
-                        obj["rule" + idx + "hysteresis"] = rule.hysteresis;
-                        rule.relays.forEach((relay, _idx) => {
-                            var relay_value = "X";
-                            if (relay === "On") { relay_value = "On"; }
-                            if (relay === "Off") { relay_value = "Off"; }
-                            obj["rule" + idx + "relay" + (_idx + 1)] = relay_value;
+
+
+                <button style={{ cursor: 'pointer' }} onClick={async () => {
+                    let obj = {};
+                    for (let n = 0; n < _settings.totalControllers; n++) {
+                        let rules = _rules["rules_" + n];
+                        rules.forEach((rule, idx) => {
+                            obj["rule_" + n + "_" + idx + "_value"] = rule.value;
+                            obj["rule_" + n + "_" + idx + "_hysteresis"] = rule.hysteresis;
+                            rule.relays.forEach((relay, _idx) => {
+                                let relay_value = "X";
+                                if ((relay === "On") || (relay == true)) { relay_value = "On"; }
+                                if ((relay === "Off") || (relay == false)) { relay_value = "Off"; }
+                                obj["rule_" + n + "_" + idx + "_relay_" + (_idx + 1)] = relay_value;
+                            });
                         });
 
-                        relaytype.forEach((_relaiType, idx) => {
-                            obj["relaytype" + (idx + 1)] = _relaiType;
+                        let defaultRelay = _rules["relaydefault_" + n];
+                        defaultRelay.forEach((__relay , idx) => {
+                            obj["relaydefault_" + n + "_" + idx] = __relay ? "On" : "Off";
                         });
-
-                        defaultrelay.forEach((_defaultrelay, idx) => {
-                            obj["defaultrelay" + (idx + 1)] = _defaultrelay;
-                        });
-
-                    });
-                    props.dispatch(actionsBms.setRules(obj));*/
+                    }
+                    let response = await props.dispatch(actionsBms.setRules(obj));
+                    if (response === true) {
+                        props.snackbar.success("Saved");
+                    } else {
+                        props.snackbar.error("An Error was occured");
+                    }
                 }}>Save rules</button>
             </div>
         </div>
     </div>
 }
-export default withStoreProvider(withNavigation(injectIntl(Rules)));
+export default withStoreProvider(withNavigation(withSnackBar(injectIntl(Rules))));

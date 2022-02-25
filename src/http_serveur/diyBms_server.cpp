@@ -74,6 +74,44 @@ const char index_html[] PROGMEM = R"rawliteral(
 //------------------------------------------------------------------------------------------------//
 //---                                         Privees                                          ---//
 //------------------------------------------------------------------------------------------------//
+
+void downloadFile(AsyncWebServerRequest *request)
+{
+
+    if (request->hasParam("type", false) && request->hasParam("file", false))
+    {
+
+        String type = request->getParam("type", false)->value();
+        String file = request->getParam("file", false)->value();
+
+        if (file.startsWith("/") == false)
+        {
+            // All file names must start at the root
+            request->send(400); // 400 bad request
+            return;
+        }
+        if (file.startsWith("//") == true)
+        {
+            // All file names must start at the root
+            request->send(400); // 400 bad request
+            return;
+        }
+        if (file.startsWith("/diybms/") == true)
+        {
+            // Prevent downloads from /diybms/ folder
+            request->send(401); // 401 Unauthorized
+            return;
+        }
+        if (type.equals("sdcard") && SDCARD_IsMounted())
+        {
+            // Process file from SD card
+            request->send(*SDCARD_GetSD(), file, "application/octet-stream", true, nullptr);
+            return;
+        }
+    }
+    request->send(400); // 400 bad request
+}
+
 // Make size of files human readable
 // source: https://github.com/CelliesProjects/minimalUploadAuthESP32
 String humanReadableSize(const size_t bytes)
@@ -299,10 +337,12 @@ void DIYBMSServer_Begin(void)
         server->on("/settings.json", HTTP_GET, SETTINGS_JSON);
         server->on("/rules.json", HTTP_GET, RULES_JSON);
         server->on("/identifyModule.json", HTTP_GET, IDENTIFY_MODULE);
+        server->on("/download", HTTP_GET, downloadFile);
 
         server->on("/savebankconfig.json", HTTP_POST, saveBankConfiguration);
         server->on("/saveglobalsetting.json", HTTP_POST, GLOBALSETTINGS_JSON);
         server->on("/savestorage.json", HTTP_POST, STORAGE_Save);
+        server->on("/saverules.json", HTTP_POST, RULES_Save);
 
         WEBSERVER_Begin();
     }

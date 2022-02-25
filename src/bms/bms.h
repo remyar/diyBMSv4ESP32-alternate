@@ -32,6 +32,7 @@
 typedef struct{
     bool isStarted;
     uint32_t controllerVoltage[maximum_of_total_controllers];
+    uint8_t rule_outcome[maximum_of_total_controllers][RELAY_RULES];
 }s_GLOBAL_BMS;
 
 //================================================================================================//

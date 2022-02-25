@@ -43,5 +43,5 @@
 //---                                        Fonctions                                         ---//
 //------------------------------------------------------------------------------------------------//
 void RULES_JSON(AsyncWebServerRequest *request);
-
+void RULES_Save(AsyncWebServerRequest *request);
 #endif //--- _BOARD_

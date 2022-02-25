@@ -41,10 +41,15 @@ function App(props) {
 
         props.dispatch(actionsBms.getStorage());
 
+        let d = 0;
         const interval = setInterval(() => {
             props.dispatch(actionsBms.getMonitor2());
             props.dispatch(actionsBms.getMonitor3());
-            props.dispatch(actionsBms.getStorage());
+            props.dispatch(actionsBms.getRules());
+            d++;
+            if ((d % 6) == 0) {
+                props.dispatch(actionsBms.getStorage());
+            }
         }, 5000);
 
         return () => clearInterval(interval);

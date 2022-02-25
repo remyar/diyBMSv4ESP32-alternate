@@ -80,6 +80,7 @@ uint16_t _NbTotalModulesForController(uint8_t idx)
     diybms_eeprom_settings *_mySettings = SETTINGS_Get();
     return _mySettings->totalNumberOfSeriesModules[idx] * _mySettings->totalNumberOfBanks[idx];
 }
+
 //------------------------------------------------------------------------------------------------//
 //---                                        Partagees                                         ---//
 //------------------------------------------------------------------------------------------------//
@@ -117,7 +118,7 @@ bool MODBUS_TaskInit(void)
 void MODBUS_TaskRun(void)
 {
     diybms_eeprom_settings *_mySettings = SETTINGS_Get();
-    if ((millis() - _ms) >= 30000)
+    if (((millis() - _ms) >= 30000) && (eRtuState < RTU_SEND_RULES_INFORMATION))
     {
         _ms = millis();
         eRtuState = RTU_READ_CMI_INFORMATION;
@@ -129,18 +130,24 @@ void MODBUS_TaskRun(void)
     {
     case RTU_READ_CONTROLLER_VOLTAGE_AND_STATUS:
     {
-        uint8_t result = sRtuSlave[idxCtrl].slave->readHoldingRegisters(CONTOLLER_READ_VOLTAGE_AND_STATUS, (_mySettings->totalNumberOfBanks[idxCtrl] * 2) + 1);
+        // sRtuSlave[idxCtrl].slave->clearTransmitBuffer();
+        uint8_t result = sRtuSlave[idxCtrl].slave->readHoldingRegisters(CONTOLLER_READ_VOLTAGE_AND_STATUS, (_mySettings->totalNumberOfBanks[idxCtrl] * 2) + 1 + RELAY_RULES);
         if (result == sRtuSlave[idxCtrl].slave->ku8MBSuccess)
         {
             s_GLOBAL_BMS *bms = BMS_GetBmsPtr();
             bms->isStarted = sRtuSlave[idxCtrl].slave->getResponseBuffer(0);
             uint32_t controllerVoltage = 0;
+
+            for ( int i = 0 ; i < RELAY_RULES ; i++){
+                bms->rule_outcome[idxCtrl][i] = sRtuSlave[idxCtrl].slave->getResponseBuffer(i+1);
+            }
+
             for (int i = 0; i < _mySettings->totalNumberOfBanks[idxCtrl]; i++)
             {
                 UINT32UNION_t val;
                 val.number = 0;
-                val.word[0] = sRtuSlave[idxCtrl].slave->getResponseBuffer((i * 2) + 1);
-                val.word[1] = sRtuSlave[idxCtrl].slave->getResponseBuffer(((i * 2) + 1) + 1);
+                val.word[0] = sRtuSlave[idxCtrl].slave->getResponseBuffer((i * 2) + 1 + RELAY_RULES);
+                val.word[1] = sRtuSlave[idxCtrl].slave->getResponseBuffer(((i * 2) + 1 + RELAY_RULES) + 1);
 
                 controllerVoltage += val.number;
             }
@@ -158,9 +165,10 @@ void MODBUS_TaskRun(void)
     {
         /* uint8_t totalnbRegistres = _NbTotalModulesForController(idxCtrl);
          totalnbRegistres *= 11; //-- nbRegistre to read  per module
-
          uint8_t result = sRtuSlave[idxCtrl].slave->readInputRegisters( CONTOLLER_READ_VOLTAGE_AND_STATUS, totalnbRegistres);*/
+
         uint8_t totalnbRegistres = 11;
+        // sRtuSlave[idxCtrl].slave->clearTransmitBuffer();
         uint8_t result = sRtuSlave[idxCtrl].slave->readInputRegisters(((idxCmi << 8) & 0xFF00) | CONTOLLER_READ_VOLTAGE_AND_STATUS, totalnbRegistres);
         if (result == sRtuSlave[idxCtrl].slave->ku8MBSuccess)
         {
@@ -198,27 +206,93 @@ void MODBUS_TaskRun(void)
             if (idxCtrl >= _mySettings->totalControllers)
             {
                 idxCtrl = 0;
+                eRtuState = RTU_READ_CONTROLLER_VOLTAGE_AND_STATUS;
             }
         }
         break;
     }
-    /*case RTU_READ_CONTROLLER_VOLTAGE_AND_STATUS:{
-        uint16_t cmiAddress = idxCmi << 8;
-        uint8_t result = sRtuSlave[idxCtrl].slave->readInputRegisters(cmiAddress | 0xEF, 23);
-        if (result == sRtuSlave[idxCtrl].slave->ku8MBSuccess){
+    case (RTU_SEND_RULES_INFORMATION):
+    {
+        ModbusMaster *node = sRtuSlave[idxCtrl].slave;
 
-        } else {
-            Serial.print("Request Timeout");
+        node->clearTransmitBuffer();
+        UINT32UNION_t v;
+        v.number = _mySettings->rulehysteresis[idxCtrl][idxCmi];
+        node->setTransmitBuffer(0, v.word[0]);
+        node->setTransmitBuffer(1, v.word[1]);
+        v.number = _mySettings->rulevalue[idxCtrl][idxCmi];
+        node->setTransmitBuffer(2, v.word[0]);
+        node->setTransmitBuffer(3, v.word[1]);
+        uint8_t result = node->writeMultipleRegisters((0x8000 | (idxCmi << 8)) | CONTROLLER_REPORT_CONFIGURATION, 4);
+        if (result == node->ku8MBSuccess)
+        {
+            idxCmi++;
         }
-        if ( idxCmi >= _mySettings->totalNumberOfSeriesModules[idxCtrl] ){
-            idxCmi = 0;
+
+        if (idxCmi >= RELAY_RULES)
+        {
             idxCtrl++;
-            if ( idxCtrl >= _mySettings->totalControllers ){
+            if (idxCtrl >= _mySettings->totalControllers)
+            {
                 idxCtrl = 0;
+                idxCmi = 0;
+                eRtuState = RTU_SEND_RELAY_INFORMATION;
             }
         }
         break;
-    }*/
+    }
+    case (RTU_SEND_RELAY_INFORMATION):
+    {
+        ModbusMaster *node = sRtuSlave[idxCtrl].slave;
+        node->clearTransmitBuffer();
+
+        for (int i = 0; i < RELAY_TOTAL; i++)
+        {
+            node->setTransmitBuffer(i, _mySettings->rulerelaystate[idxCtrl][idxCmi][i]);
+        }
+
+        uint8_t result = node->writeMultipleRegisters((0xC000 | (idxCmi << 8)) | CONTROLLER_REPORT_CONFIGURATION, 4);
+        if (result == node->ku8MBSuccess)
+        {
+            idxCmi++;
+        }
+
+        if (idxCmi >= RELAY_RULES)
+        {
+            idxCtrl++;
+            if (idxCtrl >= _mySettings->totalControllers)
+            {
+                idxCtrl = 0;
+                idxCmi = 0;
+                eRtuState = RTU_SEND_RELAY_DEFAULT_INFORMATION;
+            }
+        }
+        break;
+    }
+    case (RTU_SEND_RELAY_DEFAULT_INFORMATION):
+    {
+        ModbusMaster *node = sRtuSlave[idxCtrl].slave;
+        node->clearTransmitBuffer();
+
+        for (int i = 0; i < RELAY_TOTAL; i++)
+        {
+            node->setTransmitBuffer(i, _mySettings->rulerelaydefault[idxCtrl][i]);
+        }
+
+        uint8_t result = node->writeMultipleRegisters(0x0F00 | CONTROLLER_REPORT_CONFIGURATION, 4);
+        if (result == node->ku8MBSuccess)
+        {
+            idxCtrl++;
+        }
+
+        if (idxCtrl >= _mySettings->totalControllers)
+        {
+            idxCtrl = 0;
+            idxCmi = 0;
+            eRtuState = RTU_READ_CONTROLLER_VOLTAGE_AND_STATUS;
+        }
+        break;
+    }
     default:
     {
         break;
@@ -230,6 +304,8 @@ void MODBUS_SendConfiguration(uint8_t idxController)
 {
     ModbusMaster *node = sRtuSlave[idxController].slave;
     diybms_eeprom_settings *_mySettings = SETTINGS_Get();
+
+    node->clearTransmitBuffer();
 
     node->setTransmitBuffer(0, _mySettings->totalNumberOfBanks[idxController]);
     node->setTransmitBuffer(1, _mySettings->totalNumberOfSeriesModules[idxController]);
@@ -250,6 +326,7 @@ void MODBUS_SendConfiguration(uint8_t idxController)
 void MODBUS_SendIdentifyModule(uint8_t idxController, uint8_t idxModule)
 {
     ModbusMaster *node = sRtuSlave[idxController].slave;
+    node->clearTransmitBuffer();
     uint8_t result = sRtuSlave[idxController].slave->writeMultipleRegisters(((idxModule << 8) & 0xFF00) | CONTROLLER_IDENTIFY, 0);
     if (result == sRtuSlave[idxController].slave->ku8MBSuccess)
     {
@@ -261,6 +338,14 @@ void MODBUS_SendIdentifyModule(uint8_t idxController, uint8_t idxModule)
     }
 }
 
-void MODBUS_SendGlobalSettings(uint8_t idxController){
+void MODBUS_SendGlobalSettings(uint8_t idxController)
+{
     MODBUS_SendConfiguration(idxController);
+}
+
+void MODBUS_SendRules(void)
+{
+    eRtuState = RTU_SEND_RULES_INFORMATION;
+    idxCtrl = 0;
+    idxCmi = 0;
 }
