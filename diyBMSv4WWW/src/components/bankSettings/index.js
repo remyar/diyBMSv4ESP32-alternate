@@ -115,6 +115,16 @@ function BankSettings(props) {
                                         })()}
                                     </select>
                                 </div>
+                                <div style={{ paddingTop: '5px' }}>
+                                    <label >Select Port</label>
+                                    <select defaultValue={totalControllers[n].port || settings.PortCom[0].path} style={{ marginLeft: "10px" }} name="port" id="port" onChange={(event) => {
+                                        _updateController(n, { port: event.target.value });
+                                    }}>
+                                         {(() => {
+                                            return settings.PortCom.map((c) => <option value={c.path}>{c.path}</option>)
+                                        })()}
+                                    </select>
+                                </div> 
                             </div>);
                         }
                         return _retVal;
@@ -129,6 +139,7 @@ function BankSettings(props) {
                             _obj["totalSeriesModules_" + _i] = _ctrl.totalSeriesModules;
                             _obj["totalBanks_" + _i] = _ctrl.totalBanks;
                             _obj["baudrate_" + _i] = _ctrl.baudrate;
+                            _obj["port_" + _i] = _ctrl.port || ((settings.PortCom) && (settings.PortCom[0] != undefined)) && settings.PortCom[0].path;
                         }
 
                         let response = await props.dispatch(actionsBms.setBankSettings(_obj));
