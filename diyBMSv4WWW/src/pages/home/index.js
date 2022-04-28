@@ -73,9 +73,9 @@ function Home(props) {
                 markLineData.push({ name: 'max', type: 'max', lineStyle: { color: '#ddd', width: 2, type: 'dotted', opacity: 0.3 }, label: { distance: [10, 0], position: 'start', color: "#eeeeee", textBorderColor: '#313131', textBorderWidth: 2 } });
             
                 let xAxis = 0;
-                for (let index = 0; index < monitor2.banks; index++) {
+                 for (let index = 0; index < (monitor2?.controllers && monitor2?.controllers[i] && monitor2?.controllers[i].banks) ; index++) {
                     markLineData.push({ name: "Bank " + index, xAxis: xAxis, lineStyle: { color: colours[index], width: 4, type: 'dashed', opacity: 0.5 }, label: { show: true, distance: [0, 0], formatter: '{b}', color: '#eeeeee', textBorderColor: colours[index], textBorderWidth: 2 } });
-                    xAxis += monitor2.seriesmodules;
+                    xAxis += parseInt(monitor2.controllers[i].seriesmodules);
                 }
 
                 if (monitor2 && monitor2?.controllers && monitor2?.controllers[i]) {

@@ -15,21 +15,31 @@ router.post('/', async (req, res, next) => {
     try{
         await file.saveBankConfiguration(req.body);
         let _sett = await file.readBankConfiguration();
-       
-        await global.Controllers.forEach(async (c)=>{
-            await c.close();
-        });
+        let globalSettings =  await file.readGlobalSettings();
+        for ( let i = 0 ; i < global.Controllers.length ; i++){
+            await global.Controllers[i].close();
+        }
 
         global.Controllers = [];
         
-        for ( let i = 0 ; i < _sett.totalControllers ; i++){
+        for ( let i = 0 ; i < parseInt(_sett.totalControllers) ; i++){
             let settings = {
                 baudrate : _sett["baudrate_"+i],
                 totalBanks : _sett["totalBanks_"+i],
                 totalSeriesModules : _sett["totalSeriesModules_"+i],
                 port : _sett["port_"+i],
+                BypassOverTempShutdown : globalSettings['BypassOverTempShutdown_' + i ],
+                BypassThresholdmV : globalSettings['BypassThresholdmV_'+i]
             }
             global.Controllers.push(new Controller(settings));
+            for ( let j = 0 ; j < global.Controllers.length ; j++){
+                try {
+                    await global.Controllers[j].open();
+                    await global.Controllers[j].controllerSetSettings();
+                } catch (err) {
+                    console.error(err);
+                }
+            };
         }
         res.json({success : true});
     }catch(err){

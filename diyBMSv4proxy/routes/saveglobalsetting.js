@@ -13,7 +13,10 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try{
-        await file.saveGlobalSettings(req.body);
+        let settings = await file.readGlobalSettings();
+        settings['BypassOverTempShutdown_' + req.body.moduleId] = req.body.BypassOverTempShutdown;
+        settings['BypassThresholdmV_' + req.body.moduleId] = req.body.BypassThresholdmV;
+        await file.saveGlobalSettings(settings);
         res.json({success : true});
     }catch(err){
         res.json({success : false});

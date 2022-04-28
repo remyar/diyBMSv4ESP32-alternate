@@ -5,8 +5,13 @@ const { SerialPort } = require('serialport');
 
 router.get('/', async (req, res, next) => {
     try{
-        const _ports = (await SerialPort.list()).filter((el) => el.friendlyName.includes("USB-SERIAL CH340"));
-
+		let _ports = [];
+		if ( process.platform === "win32" ){
+			_ports = (await SerialPort.list()).filter((el) => el.friendlyName.includes("USB-SERIAL CH340"));
+		} else {
+			_ports.push({ path : "/dev/ttyUSB0" });
+		}
+		
         let settings = await file.readSettings();
 
         settings.PortCom = [..._ports];
