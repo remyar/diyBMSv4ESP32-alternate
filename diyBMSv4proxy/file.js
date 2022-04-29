@@ -8,6 +8,7 @@ module.exports = {
             resolve(data);
         });
     },
+    
     save: async function (path, data) {
         return new Promise((resolve, reject) => {
             fs.writeFileSync(path, data, 'utf8');
@@ -48,15 +49,17 @@ module.exports = {
     },
 
     readRules: async function () {
-        let obj = { timenow: new Date().getTime(), rules_0: [], relaydefault_0: [false, false, false,false] };
-        for (let i = 0; i < 8; i++) {
-            obj.rules_0.push({
-                value: 0,
-                hysteresis: 0,
-                triggered: false,
-                relays: [null, null, null, null]
-            })
-        }
+        let obj = { timenow: new Date().getTime(), rules_0: [
+            {"value":"4150","hysteresis":"4150","triggered":false,"relays":["X","X","X","X"]},
+            {"value":"3000","hysteresis":"3000","triggered":false,"relays":["X","X","X","X"]},
+            {"value":"60","hysteresis":"60","triggered":false,"relays":["X","X","X","X"]},
+            {"value":"50","hysteresis":"50","triggered":false,"relays":["X","X","X","X"]},
+            {"value":"55","hysteresis":"55","triggered":false,"relays":["X","X","X","X"]},
+            {"value":"5","hysteresis":"5","triggered":false,"relays":["X","X","X","X"]},
+            {"value":"4200","hysteresis":"4200","triggered":false,"relays":["X","X","X","X"]},
+            {"value":"3000","hysteresis":"3000","triggered":false,"relays":["X","X","X","X"]}
+        ], relaydefault_0: [false, false, false,false] };
+
         try {
             let str = await this.read(path.resolve(__dirname, './rules.json'));
             return JSON.parse(str);

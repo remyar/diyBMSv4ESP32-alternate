@@ -6,10 +6,18 @@ router.get('/', async (req, res, next) => {
     let obj = {};
     try {
         let _sett = await file.readRules();
+        _sett.timenow = new Date().getHours() * 60 + new Date().getMinutes();
+
+        for ( let i = 0 ; i < global.Controllers.length ; i++ ){
+            let _c = global.Controllers[i];
+            for ( let j = 0 ; j < _c.rule_outcome.length ; j++){
+                _sett["rules_" + i][j].triggered = parseInt(_c.rule_outcome[j]) ? true : false;
+            }
+        }
 
         res.json(_sett);
     } catch (err) {
-        console.error(err)
+        res.json(obj);
     }
 });
 
@@ -47,7 +55,7 @@ router.post('/', async (req, res, next) => {
         for (let i = 0; i < parseInt(_sett.totalControllers); i++) {
             for (let rule = 0; rule < 8; rule++) {
 
-                for (let j = 0; j < 4; j++) {
+                for (let j = 0; j < 3; j++) {
                     let name = "rule_";
                     name += i;
                     name += "_";
@@ -61,7 +69,7 @@ router.post('/', async (req, res, next) => {
         }
 
         for (let i = 0; i < parseInt(_sett.totalControllers); i++) {
-            for (let j = 0; j < 4; j++) {
+            for (let j = 0; j < 3; j++) {
                 let name = "relaydefault_";
                 name += i;
                 name += "_";
@@ -70,6 +78,19 @@ router.post('/', async (req, res, next) => {
                 _rules['relaydefault_' + i][j] = req.body[name];
             }
         }
+        
+        for (let j = 0; j < global.Controllers.length; j++) {
+            try {
+                await global.Controllers[j].open();
+                await global.Controllers[j].controllerSetRules({
+                    timenow: new Date().getHours() * 60 + new Date().getMinutes(),
+                    rules: _rules["rules_" + j],
+                    relaydefault: _rules["relaydefault_" + j]
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        };
 
         await file.saveRules(_rules);
 

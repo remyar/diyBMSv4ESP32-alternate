@@ -13,13 +13,14 @@ import RuleSettings from '../../components/ruleSettings';
 function Rules(props) {
 
     const _settings = props.globalState.settings || {};
-    const _rules = props.globalState.rules || {};
+    const rules = props.globalState.rules || {};
 
     /*
     const [defaultrelay, setDefaultRelay] = useState(_rules.relaydefault);
-    const [relaytype, setRelaytype] = useState(_rules.relaytype);
-    const [rules, setRules] = useState(_rules.rules);
-*/
+    const [relaytype, setRelaytype] = useState(_rules.relaytype);*/
+
+    const [_rules, setRules] = useState(rules);
+
     const rulesTab = [
         //{ label: "Emergency stop", hidden: true, },
         //{ label: "Internal BMS error", hidden: true },
@@ -58,7 +59,7 @@ function Rules(props) {
                 minutes past
                 midnight has been reached, for instance setting 'Timer 1' trigger to 495 and reset to 555 would switch
                 on at 8:15am and off at 9:15am. This only works if connected to internet for regular time updates.</p>
-            <p id="rt5">Minutes since midnight now is: <span id='minutesnow'>{_rules.timenow}</span></p>
+            <p id="rt5">Minutes since midnight now is: <span id='minutesnow'>{rules.timenow}</span></p>
             <p id="rt6">Emergency stop is triggered by connector J1, once triggered controller needs to be reset to
                 disable.</p>
         </div>
@@ -88,6 +89,7 @@ function Rules(props) {
                                             max={_r.max}
                                             step={_r.step}
                                             rule={_rules["rules_" + n][idx]}
+                                            triggered={rules["rules_" + n][idx].triggered}
                                             onChange={(rule) => {
                                                 _rules["rules_" + n][idx] = rule;
                                             }}
@@ -100,8 +102,8 @@ function Rules(props) {
                                         <td className="relayset">
                                             <select id="defaultrelay1" name="defaultrelay1" defaultValue={(() => {
                                                 var relay_value = "X";
-                                                if (_rules["relaydefault_"+n][0] === true) { relay_value = "On"; }
-                                                if (_rules["relaydefault_"+n][0] === false) { relay_value = "Off"; }
+                                                if (_rules["relaydefault_"+n][0] === true || _rules["relaydefault_"+n][0] === 'On') { relay_value = "On"; }
+                                                if (_rules["relaydefault_"+n][0] === false || _rules["relaydefault_"+n][0] === 'Off') { relay_value = "Off"; }
                                                 return relay_value;
                                             })()}
                                                 onChange={(event) => {
@@ -114,8 +116,8 @@ function Rules(props) {
                                             </select>
                                             <select id="defaultrelay2" name="defaultrelay2" defaultValue={(() => {
                                                 var relay_value = "X";
-                                                if (_rules["relaydefault_"+n][1] === true) { relay_value = "On"; }
-                                                if (_rules["relaydefault_"+n][1] === false) { relay_value = "Off"; }
+                                                if (_rules["relaydefault_"+n][1] === true || _rules["relaydefault_"+n][1] === 'On') { relay_value = "On"; }
+                                                if (_rules["relaydefault_"+n][1] === false || _rules["relaydefault_"+n][1] === 'Off') { relay_value = "Off"; }
                                                 return relay_value;
                                             })()}
                                                 onChange={(event) => {
@@ -128,8 +130,8 @@ function Rules(props) {
                                             </select>
                                             <select id="defaultrelay3" name="defaultrelay3" defaultValue={(() => {
                                                 var relay_value = "X";
-                                                if (_rules["relaydefault_"+n][2] === true) { relay_value = "On"; }
-                                                if (_rules["relaydefault_"+n][2] === false) { relay_value = "Off"; }
+                                                if (_rules["relaydefault_"+n][2] === true || _rules["relaydefault_"+n][2] === 'On') { relay_value = "On"; }
+                                                if (_rules["relaydefault_"+n][2] === false|| _rules["relaydefault_"+n][2] === 'Off') { relay_value = "Off"; }
                                                 return relay_value;
                                             })()}
                                                 onChange={(event) => {
@@ -139,10 +141,10 @@ function Rules(props) {
                                                 <option>On</option>
                                                 <option>Off</option>
                                             </select>
-                                            <select id="defaultrelay4" name="defaultrelay4" defaultValue={(() => {
+                                           {/* <select id="defaultrelay4" name="defaultrelay4" defaultValue={(() => {
                                                 var relay_value = "X";
-                                                if (_rules["relaydefault_"+n][3] === true) { relay_value = "On"; }
-                                                if (_rules["relaydefault_"+n][3] === false) { relay_value = "Off"; }
+                                                if (_rules["relaydefault_"+n][3] === true|| _rules["relaydefault_"+n][3] === 'On') { relay_value = "On"; }
+                                                if (_rules["relaydefault_"+n][3] === false|| _rules["relaydefault_"+n][3] === 'Off') { relay_value = "Off"; }
                                                 return relay_value;
                                             })()}
                                                 onChange={(event) => {
@@ -151,7 +153,7 @@ function Rules(props) {
                                                 }}>
                                                 <option>On</option>
                                                 <option>Off</option>
-                                            </select>
+                                            </select>*/}
                                         </td>
                                             </tr>
                                 </tbody>
@@ -179,7 +181,7 @@ function Rules(props) {
 
                         let defaultRelay = _rules["relaydefault_" + n];
                         defaultRelay.forEach((__relay , idx) => {
-                            obj["relaydefault_" + n + "_" + idx] = __relay ? "On" : "Off";
+                            obj["relaydefault_" + n + "_" + idx] = __relay === true ||  __relay === 'On' ? "On" : "Off";
                         });
                     }
                     let response = await props.dispatch(actionsBms.setRules(obj));

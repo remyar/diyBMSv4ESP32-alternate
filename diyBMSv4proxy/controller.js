@@ -3,8 +3,8 @@ const MessageBuffer = require('./MessageBuffer');
 
 class Controller {
     constructor(settings) {
+
         this.serialPortCom = new SerialPort({ path: settings?.port || "COM1", autoOpen: true, baudRate: parseInt(settings?.baudrate ? settings?.baudrate : 9600) });
-        this.closed = true;
         this.received = new MessageBuffer("]");
 
         this.totalSeriesModules = parseInt(settings.totalSeriesModules);
@@ -13,6 +13,7 @@ class Controller {
         this.BypassThresholdmV = parseInt(settings.BypassThresholdmV);
 
         this.cmi = [];
+        this.rule_outcome = [];
 
         this.serialPortCom.on('data', (chunk) => {
             this.received.push(chunk);
@@ -22,8 +23,10 @@ class Controller {
             }
         });
 
-        this.serialPortCom.on('open', (err) => {
-            this.closed = false;
+        this.serialPortCom.on('open', (err) => { });
+
+        this.serialPortCom.on('error', (err) => {
+            console.log(err);
         });
     }
 
@@ -46,7 +49,12 @@ class Controller {
                 badPacketCount: parseInt(_values[9]),
                 PacketReceivedCount: parseInt(_values[10]),
                 BalanceCurrentCount: parseInt(_values[11]),
-            }
+            };
+        }
+        if (message.includes("RCVS")) {
+            message = message.replace("RCVS", "");
+            let _values = message.split(':');
+            this.rule_outcome = [..._values];
         }
     }
     /*
@@ -57,39 +65,43 @@ class Controller {
         }
     */
     async open() {
-        return new Promise((resolve, reject) => {
+        return new Promise( (resolve, reject) => {
             let cpt = 0;
-            let __it = setInterval(() => {
+            let __it = setInterval(async () => {
                 cpt++;
-                if (this.closed == false) {
+                if (this.serialPortCom.isOpen == false) {
+                    this.serialPortCom.open();
+                }
+                if (this.serialPortCom.isOpen == true) {
                     clearInterval(__it);
+                    await this.sleep(3000);
                     resolve();
                     return;
                 }
 
-                if (cpt >= 30) {
+                if (cpt >= 300) {
                     clearInterval(__it);
                     reject();
                     return;
                 }
-            }, 1000);
+            }, 100);
         })
     }
 
     async close() {
         return new Promise((resolve, reject) => {
-            if (this.closed == true) {
+            if (this.serialPortCom.isOpen == false) {
                 resolve();
             } else {
                 this.serialPortCom.close((err) => {
                     if (err) {
-                        this.closed = false;
                         reject(err);
                         return;
                     }
-                    clearInterval(this.interval);
-                    this.closed = true;
-                    resolve();
+                    setTimeout(() => {
+                        resolve();
+                    }, 5000)
+
                 });
             }
         });
@@ -107,8 +119,8 @@ class Controller {
         }
     */
     async controllerSetSettings() {
-        return new Promise((resolve, reject) => {
-            if (this.closed == true) {
+        return new Promise(async (resolve, reject) => {
+            if (this.serialPortCom.isOpen == false) {
                 reject();
             } else {
                 this.serialPortCom.write("[WCS255:" + this.totalBanks + ":" + this.totalSeriesModules + ":" + this.BypassOverTempShutdown + ":" + this.BypassThresholdmV + "]");
@@ -119,10 +131,59 @@ class Controller {
 
     async controllerSetCmiIdentify(cmiIdx) {
         return new Promise((resolve, reject) => {
-            if (this.closed == true) {
+            if (this.serialPortCom.isOpen == false) {
                 reject();
             } else {
                 this.serialPortCom.write("[ID" + cmiIdx + "]");
+                resolve();
+            }
+        });
+    }
+
+    async sleep(delay) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve();
+            }, delay)
+        });
+    }
+
+    async controllerSetRules(rules) {
+        return new Promise(async (resolve, reject) => {
+            if (this.serialPortCom.isOpen == false) {
+                reject();
+            } else {
+
+                for (let i = 0; i < rules.rules.length; i++) {
+                    let _r = rules.rules[i];
+                    let str = ("[WCR" + i + ":" + _r.value + ":" + _r.hysteresis + ":");
+
+                    for (let j = 0; j < 4; j++) {
+                        let val = 0
+                        if (_r.relays[j] == 'On') {
+                            val = 0xFF;
+                        } else if (_r.relays[j] == 'Off') {
+                            val = 0x99;
+                        }
+                        str += ("" + val + "");
+                        str += (":");
+                    }
+                    str += "]";
+                    this.serialPortCom.write(str);
+                    await this.sleep(100);
+                }
+
+                this.serialPortCom.write("[WRS");
+                for (let i = 0; i < rules.relaydefault.length; i++) {
+                    let val = 0x99;
+                    if (rules.relaydefault[i] == 'On') {
+                        val = 0xFF;
+                    }
+                    this.serialPortCom.write("" + val + "");
+                    this.serialPortCom.write(":");
+                }
+                this.serialPortCom.write("]");
+
                 resolve();
             }
         });

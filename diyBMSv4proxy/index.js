@@ -20,21 +20,8 @@ async function loadControllerSettings() {
             port: _sett["port_" + i],
         }
         global.Controllers.push(new Controller(settings));
-
     }
-/*
-    await global.Controllers.forEach(async (c) => {
-        try {
-            await c.open();
-        } catch (err) {
-            console.error(err);
-        }
-    });
-*/
 }
-
-
-
 
 app.use(express.json())    // <==== parse request body as JSON
 app.options('*', cors()) // include before other routes
@@ -47,21 +34,3 @@ app.listen(3005, () => {
     console.log("Serveur à l'écoute");
     loadControllerSettings();
 });
-
-/*
-setInterval(() => {
-
-    global.Controllers.forEach(async (c) => {
-        try {
-
-            for (let i = 0; i < c.totalSeriesModules; i++) {
-                await c.cmiReadVoltageAndStatus(i);
-            }
-
-        } catch (err) {
-            console.error(err);
-        }
-    });
-
-}, 1000);
-*/

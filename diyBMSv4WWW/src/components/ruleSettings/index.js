@@ -29,7 +29,7 @@ function RuleSettings(props) {
 
     return <tr>
         <td>
-            <label for={"rule" + id + "value"} class={rule.triggered ? "triggered" : ""}>{label}</label>
+            <label for={"rule" + id + "value"} class={props.triggered ? "triggered" : ""}>{label}</label>
         </td>
         <td>
             <input
@@ -48,7 +48,7 @@ function RuleSettings(props) {
         <td className="relayset">
             {(() => {
                 let _comp = [];
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < 3; i++) {
                     _comp.push(<RelayState
                         ruleId={id}
                         relayId={i}
