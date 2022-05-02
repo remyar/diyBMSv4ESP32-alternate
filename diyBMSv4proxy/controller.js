@@ -251,7 +251,7 @@ class Controller {
                     let _r = rules.rules[i];
                     let str = ("[WCR" + i + ":" + _r.value + ":" + _r.hysteresis + ":");
 
-                    for (let j = 0; j < 4; j++) {
+                    for (let j = 0; j < this.RELAY_TOTAL; j++) {
                         let val = 0
                         if (_r.relays[j] == 'On') {
                             val = 0xFF;

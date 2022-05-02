@@ -9,11 +9,11 @@ router.get('/', async (req, res, next) => {
         for (let i = 0; i < global.Controllers.length; i++) {
             let _rules = await global.Controllers[i].controllerGetRules();
             obj["rules_" + i] = [];
-            for( let j = 0 ; j < _rules.length  ; j++){
-                obj["rules_" + i][j]= { 
-                    value : _rules[j].rulevalue,
-                    hysteresis : _rules[j].rulehysteresis,
-                    relays : [..._rules[j].rulerelaystate]
+            for (let j = 0; j < _rules.length; j++) {
+                obj["rules_" + i][j] = {
+                    value: _rules[j].rulevalue,
+                    hysteresis: _rules[j].rulehysteresis,
+                    relays: [..._rules[j].rulerelaystate]
                 };
             }
         }
@@ -58,6 +58,82 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try {
+        let _rules = {};
+
+        for (let i = 0; i < global.Controllers.length; i++) {
+            for (let rule = 0; rule < global.Controllers[i].RELAY_RULES; rule++) {
+                let name = "rule_";
+                name += i;
+                name += "_";
+                name += rule;
+                name += "_value";
+
+                if (_rules["rules_" + i] == undefined) {
+                    _rules["rules_" + i] = [];
+                }
+                if (_rules["rules_" + i][rule] == undefined) {
+                    _rules["rules_" + i][rule] = {};
+                }
+                _rules["rules_" + i][rule].value = req.body[name];
+            }
+        }
+
+        for (let i = 0; i < global.Controllers.length; i++) {
+            for (let rule = 0; rule < global.Controllers[i].RELAY_RULES; rule++) {
+                let name = "rule_";
+                name += i;
+                name += "_";
+                name += rule;
+                name += "_hysteresis";
+
+                _rules["rules_" + i][rule].hysteresis = req.body[name];
+            }
+        }
+
+        for (let i = 0; i < global.Controllers.length; i++) {
+            for (let rule = 0; rule < global.Controllers[i].RELAY_RULES; rule++) {
+
+                for (let j = 0; j < global.Controllers[i].RELAY_TOTAL; j++) {
+                    let name = "rule_";
+                    name += i;
+                    name += "_";
+                    name += rule;
+                    name += "_relay_";
+                    name += (j + 1);
+                    if (_rules["rules_" + i][rule].relays == undefined) {
+                        _rules["rules_" + i][rule].relays= [];
+                    }
+                    _rules["rules_" + i][rule].relays[j] = req.body[name];
+                }
+            }
+        }
+
+        for (let i = 0; i < global.Controllers.length; i++) {
+            for (let rule = 0; rule < global.Controllers[i].RELAY_TOTAL; rule++) {
+                let name = "relaydefault_";
+                name += i;
+                name += "_";
+                name += rule;
+                if (_rules["relaydefault_" + i] == undefined) {
+                    _rules["relaydefault_" + i] = [];
+                }
+
+                _rules['relaydefault_' + i][rule] = req.body[name];
+            }
+        }
+
+        for (let i = 0; i < global.Controllers.length; i++) {
+            try {
+                await global.Controllers[i].controllerSetRules({
+                    timenow: new Date().getHours() * 60 + new Date().getMinutes(),
+                    rules: _rules["rules_" + i],
+                    relaydefault: _rules["relaydefault_" + i]
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
 
         /*
         let _rules = await file.readRules();

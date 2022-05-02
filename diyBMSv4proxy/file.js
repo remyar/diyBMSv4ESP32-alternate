@@ -2,13 +2,30 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = {
+    getDirectory: async function () {
+        return new Promise((resolve, reject) => {
+
+            const directoryPath = path.join(__dirname, './data');
+
+            fs.readdir(directoryPath, function (err, files) {
+                if (err) {
+                    reject('Unable to scan directory: ' + err);
+                    return;
+                }
+ 
+                resolve(files);
+            });
+
+        });
+    },
+
     read: async function (path) {
         return new Promise((resolve, reject) => {
             let data = fs.readFileSync(path, 'utf8');
             resolve(data);
         });
     },
-    
+
     save: async function (path, data) {
         return new Promise((resolve, reject) => {
             fs.writeFileSync(path, data, 'utf8');
@@ -39,7 +56,7 @@ module.exports = {
         await this.save(path.resolve(__dirname, './globalsettings.json'), data);
     },
     readGlobalSettings: async function () {
-        let obj = { BypassOverTempShutdown_0: 65, BypassThresholdmV_0: 3000 };
+        let obj = { loggingEnabled: false, loggingFrequencySeconds: 15 };
         try {
             let str = await this.read(path.resolve(__dirname, './globalsettings.json'));
             return JSON.parse(str);
@@ -49,16 +66,18 @@ module.exports = {
     },
 
     readRules: async function () {
-        let obj = { timenow: new Date().getTime(), rules_0: [
-            {"value":"4150","hysteresis":"4150","triggered":false,"relays":["X","X","X","X"]},
-            {"value":"3000","hysteresis":"3000","triggered":false,"relays":["X","X","X","X"]},
-            {"value":"60","hysteresis":"60","triggered":false,"relays":["X","X","X","X"]},
-            {"value":"50","hysteresis":"50","triggered":false,"relays":["X","X","X","X"]},
-            {"value":"55","hysteresis":"55","triggered":false,"relays":["X","X","X","X"]},
-            {"value":"5","hysteresis":"5","triggered":false,"relays":["X","X","X","X"]},
-            {"value":"4200","hysteresis":"4200","triggered":false,"relays":["X","X","X","X"]},
-            {"value":"3000","hysteresis":"3000","triggered":false,"relays":["X","X","X","X"]}
-        ], relaydefault_0: [false, false, false,false] };
+        let obj = {
+            timenow: new Date().getTime(), rules_0: [
+                { "value": "4150", "hysteresis": "4150", "triggered": false, "relays": ["X", "X", "X", "X"] },
+                { "value": "3000", "hysteresis": "3000", "triggered": false, "relays": ["X", "X", "X", "X"] },
+                { "value": "60", "hysteresis": "60", "triggered": false, "relays": ["X", "X", "X", "X"] },
+                { "value": "50", "hysteresis": "50", "triggered": false, "relays": ["X", "X", "X", "X"] },
+                { "value": "55", "hysteresis": "55", "triggered": false, "relays": ["X", "X", "X", "X"] },
+                { "value": "5", "hysteresis": "5", "triggered": false, "relays": ["X", "X", "X", "X"] },
+                { "value": "4200", "hysteresis": "4200", "triggered": false, "relays": ["X", "X", "X", "X"] },
+                { "value": "3000", "hysteresis": "3000", "triggered": false, "relays": ["X", "X", "X", "X"] }
+            ], relaydefault_0: [false, false, false, false]
+        };
 
         try {
             let str = await this.read(path.resolve(__dirname, './rules.json'));
@@ -79,9 +98,9 @@ module.exports = {
         try {
 
             settings.totalControllers = global.Controllers.length;
-            for ( let i = 0 ; i < settings.totalControllers ; i++ ){
+            for (let i = 0; i < settings.totalControllers; i++) {
                 let _c = global.Controllers[i];
-                try{
+                try {
                     let controllersSettings = await _c.controllerReadConf();
                     settings["totalNumberOfSeriesModules_" + i] = controllersSettings["totalSeriesModules"];
                     settings["totalNumberOfBanks_" + i] = controllersSettings["totalBanks"];
@@ -89,7 +108,7 @@ module.exports = {
                     settings["BypassOverTempShutdown_" + i] = controllersSettings["BypassOverTempShutdown"];
                     settings["BypassThresholdmV_" + i] = controllersSettings["BypassThresholdmV"];
                     settings["port_" + i] = _c.serialPortCom.path;
-                }catch(err){
+                } catch (err) {
                     console.error(err);
                 }
             }

@@ -5,7 +5,7 @@ async function getStorage({ getState , extra }) {
     try {
         let obj = await api.get("storage.json");
         return {
-            storage : obj.storage
+            storage : obj
         };
     }
     catch(err){

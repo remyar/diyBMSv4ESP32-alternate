@@ -11,5 +11,7 @@ router.use('/portcom.json', require('./portcom'));
 router.use('/identifyModule.json', require('./identifyModule'));
 router.use('/rules.json', require('./rules'));
 router.use('/saverules.json', require('./rules'));
+router.use('/storage.json', require('./storage'));
+router.use('/savestorage.json', require('./storage'));
 
 module.exports = router;
