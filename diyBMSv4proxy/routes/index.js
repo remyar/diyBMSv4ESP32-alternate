@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 router.use('/savebankconfig.json', require('./savebankconfig'));
+router.use('/getbankconfig.json', require('./savebankconfig'));
 router.use('/settings.json', require('./settings'));
 router.use('/saveglobalsetting.json', require('./saveglobalsetting'));
 router.use('/monitor2.json', require('./monitor2'));

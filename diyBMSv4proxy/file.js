@@ -77,7 +77,23 @@ module.exports = {
     readSettings: async function () {
         let settings = {};
         try {
-            let controllersSettings = await this.readBankConfiguration();
+
+            settings.totalControllers = global.Controllers.length;
+            for ( let i = 0 ; i < settings.totalControllers ; i++ ){
+                let _c = global.Controllers[i];
+                try{
+                    let controllersSettings = await _c.controllerReadConf();
+                    settings["totalNumberOfSeriesModules_" + i] = controllersSettings["totalSeriesModules"];
+                    settings["totalNumberOfBanks_" + i] = controllersSettings["totalBanks"];
+                    settings["baudRate_" + i] = 9600;
+                    settings["BypassOverTempShutdown_" + i] = controllersSettings["BypassOverTempShutdown"];
+                    settings["BypassThresholdmV_" + i] = controllersSettings["BypassThresholdmV"];
+                    settings["port_" + i] = _c.serialPortCom.path;
+                }catch(err){
+                    console.error(err);
+                }
+            }
+            /*let controllersSettings = await this.readBankConfiguration();
             let globalSettings = await this.readGlobalSettings();
 
             settings.totalControllers = controllersSettings.totalControllers;
@@ -90,6 +106,7 @@ module.exports = {
                 settings["BypassThresholdmV_" + i] = globalSettings["BypassThresholdmV_" + i];
                 settings["port_" + i] = controllersSettings["port_" + i];
             }
+            */
 
             settings.NTPServerName = "";
             settings.TimeZone = "";

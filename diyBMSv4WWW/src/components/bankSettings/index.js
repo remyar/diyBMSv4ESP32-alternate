@@ -6,6 +6,7 @@ import { withStoreProvider } from '../../providers/StoreProvider';
 import { withSnackBar } from '../../providers/snackBar';
 
 import actionsBms from '../../actions/bms';
+import GlobalSettings from '../../components/globalSettings';
 
 function BankSettings(props) {
 
@@ -22,7 +23,9 @@ function BankSettings(props) {
             totalSeriesModules: settings["totalNumberOfSeriesModules_" + i],
             totalBanks: settings["totalNumberOfBanks_" + i],
             baudrate: settings["baudRate_" + i],
-            port : settings["port_" + i]
+            port: settings["port_" + i],
+            BypassOverTempShutdown : settings["BypassOverTempShutdown_"+i],
+            BypassThresholdmV : settings["BypassThresholdmV_"+i],
         })
     }
     const [totalControllers, setTotalControllers] = useState(initiateState);
@@ -46,7 +49,7 @@ function BankSettings(props) {
             <div id="form" >
                 <div className="settings" >
                     <br />
-                    <div >
+                    {/*  <div >
                         <label for="totalControllers">Number of Total Controllers</label>
                         <select defaultValue={totalControllers.length} style={{ marginLeft: "10px", width: '50px' }} name="totalControllers" id="totalControllers" onChange={(event) => {
                             let _ctrl = [...totalControllers];
@@ -67,7 +70,7 @@ function BankSettings(props) {
                                 return options;
                             })()}
                         </select>
-                    </div>
+                        </div>*/}
                     {(() => {
                         let _retVal = [];
                         for (let n = 0; n < totalControllers.length; n++) {
@@ -75,7 +78,7 @@ function BankSettings(props) {
                                 <h2 id="mb1">Controller N° {n + 1}</h2>
                                 <div style={{ paddingTop: '5px' }}>
                                     <label >Number of series cells (eg. 8S)</label>
-                                    <select defaultValue={totalControllers[n].totalSeriesModules} style={{ marginLeft: "10px", width: '50px' }} name="totalSeriesModules" id="totalSeriesModules" onChange={(event) => {
+                                    <select defaultValue={totalControllers[n].totalSeriesModules} style={{ marginLeft: "10px", width: '100px' }} name="totalSeriesModules" id="totalSeriesModules" onChange={(event) => {
                                         _updateController(n, { totalSeriesModules: event.target.value });
                                     }}>
                                         {(() => {
@@ -89,7 +92,7 @@ function BankSettings(props) {
                                 </div>
                                 <div style={{ paddingTop: '5px' }}>
                                     <label>Number of parallel banks (eg. 2P)</label>
-                                    <select defaultValue={totalControllers[n].totalBanks} style={{ marginLeft: "10px", width: '50px' }} name="totalBanks" id="totalBanks" onChange={(event) => {
+                                    <select defaultValue={totalControllers[n].totalBanks} style={{ marginLeft: "10px", width: '100px' }} name="totalBanks" id="totalBanks" onChange={(event) => {
                                         _updateController(n, { totalBanks: event.target.value });
                                     }}>
                                         {(() => {
@@ -103,7 +106,7 @@ function BankSettings(props) {
                                 </div>
                                 <div style={{ paddingTop: '5px' }}>
                                     <label >Communication speed</label>
-                                    <select defaultValue={totalControllers[n].baudrate} style={{ marginLeft: "10px" }} name="baudrate" id="baudrate" onChange={(event) => {
+                                    <select disabled defaultValue={totalControllers[n].baudrate} style={{ marginLeft: "10px" , width: '100px' }} name="baudrate" id="baudrate" onChange={(event) => {
                                         _updateController(n, { baudrate: event.target.value });
                                     }}>
                                         {(() => {
@@ -118,19 +121,36 @@ function BankSettings(props) {
                                 </div>
                                 <div style={{ paddingTop: '5px' }}>
                                     <label >Select Port</label>
-                                    <select defaultValue={totalControllers[n].port || settings.PortCom[0].path} style={{ marginLeft: "10px" }} name="port" id="port" onChange={(event) => {
+                                    <select disabled defaultValue={totalControllers[n].port || settings.PortCom[0].path} style={{ marginLeft: "10px" , width: '100px'}} name="port" id="port" onChange={(event) => {
                                         _updateController(n, { port: event.target.value });
                                     }}>
-                                         {(() => {
+                                        {(() => {
                                             return settings.PortCom.map((c) => <option value={c.path}>{c.path}</option>)
                                         })()}
                                     </select>
-                                </div> 
+                                </div>
+                                <div style={{ paddingTop: '5px' }}>
+                                    <label for="g1">Bypass over temperature</label>
+                                    <input style={{ marginLeft: "10px" , width: '100px' }} type="number" min="20" max="90" step="1" name="BypassOverTempShutdown" id="g1" defaultValue={totalControllers[n].BypassOverTempShutdown} required="" onChange={(event) => {
+                                       // setBypassOverTempShutdown(event.target.value);
+                                       _updateController(n, { BypassOverTempShutdown: event.target.value });
+                                    }} />
+                                </div>
+                                <div style={{ paddingTop: '5px' }}>
+                                    <label for="g2">Bypass threshold mV</label>
+                                    <input style={{ marginLeft: "10px" , width: '100px' }} type="number" min="1800" max="4500" step="10" name="BypassThresholdmV" id="g2" defaultValue={totalControllers[n].BypassThresholdmV} required="" onChange={(event) => {
+                                       // setBypassThresholdmV(event.target.value);
+                                       _updateController(n, { BypassThresholdmV: event.target.value });
+                                    }} />
+                                </div>
+
                             </div>);
                         }
                         return _retVal;
                     })()}
                     <br />
+
+
                     <button style={{ cursor: "pointer" }} onClick={async () => {
                         let _obj = {};
                         _obj.totalControllers = totalControllers.length;
@@ -139,12 +159,14 @@ function BankSettings(props) {
                             let _ctrl = totalControllers[_i];
                             _obj["totalSeriesModules_" + _i] = _ctrl.totalSeriesModules;
                             _obj["totalBanks_" + _i] = _ctrl.totalBanks;
-                            _obj["baudrate_" + _i] = _ctrl.baudrate;
-                            _obj["port_" + _i] = _ctrl.port || ((settings.PortCom) && (settings.PortCom[0] != undefined)) && settings.PortCom[0].path;
+                            _obj["BypassOverTempShutdown_" + _i] = _ctrl.BypassOverTempShutdown;
+                            _obj["BypassThresholdmV_" + _i] = _ctrl.BypassThresholdmV;
+                           // _obj["baudrate_" + _i] = _ctrl.baudrate;
+                           // _obj["port_" + _i] = _ctrl.port || ((settings.PortCom) && (settings.PortCom[0] != undefined)) && settings.PortCom[0].path;
                         }
 
                         let response = await props.dispatch(actionsBms.setBankSettings(_obj));
-                        if ( response === true ){
+                        if (response === true) {
                             props.snackbar.success("Saved");
                         } else {
                             props.snackbar.error("An Error was occured");

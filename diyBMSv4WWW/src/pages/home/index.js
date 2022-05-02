@@ -115,7 +115,7 @@ function Home(props) {
                         pwm.push({ value: monitor2.controllers[i].bypasspwm[j] == 0 ? null : Math.trunc(monitor2.controllers[i].bypasspwm[j] / 255 * 100) });
                     }
                 }
-
+                comp.push(<h2 style={{ paddingBottom: "15px" }}>Controller N° {i + 1}</h2>);
                 comp.push(<div className="graphs">
                     <Graph id={"graph" + i}
                         markLine={markLineData}

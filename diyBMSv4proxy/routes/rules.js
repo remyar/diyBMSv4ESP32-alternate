@@ -5,6 +5,32 @@ const file = require('../file');
 router.get('/', async (req, res, next) => {
     let obj = {};
     try {
+        obj.timenow = new Date().getHours() * 60 + new Date().getMinutes();
+        for (let i = 0; i < global.Controllers.length; i++) {
+            let _rules = await global.Controllers[i].controllerGetRules();
+            obj["rules_" + i] = [];
+            for( let j = 0 ; j < _rules.length  ; j++){
+                obj["rules_" + i][j]= { 
+                    value : _rules[j].rulevalue,
+                    hysteresis : _rules[j].rulehysteresis,
+                    relays : [..._rules[j].rulerelaystate]
+                };
+            }
+        }
+
+        for (let i = 0; i < global.Controllers.length; i++) {
+            let _c = global.Controllers[i];
+            for (let j = 0; j < _c.rule_outcome.length; j++) {
+                obj["rules_" + i][j].triggered = parseInt(_c.rule_outcome[j]) ? true : false;
+            }
+        }
+
+        for (let i = 0; i < global.Controllers.length; i++) {
+            let _c = global.Controllers[i];
+            obj["relaydefault_" + i] = [..._c.relayDefault];
+        }
+
+        /*
         let _sett = await file.readRules();
         _sett.timenow = new Date().getHours() * 60 + new Date().getMinutes();
 
@@ -22,8 +48,8 @@ router.get('/', async (req, res, next) => {
                 _sett["rules_" + i][j].triggered = parseInt(_c.rule_outcome[j]) ? true : false;
             }
         }
-
-        res.json(_sett);
+*/
+        res.json(obj);
     } catch (err) {
         res.json(obj);
     }
@@ -32,6 +58,8 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try {
+
+        /*
         let _rules = await file.readRules();
         let _sett = await file.readBankConfiguration();
         for (let i = 0; i < parseInt(_sett.totalControllers); i++) {
@@ -112,7 +140,7 @@ router.post('/', async (req, res, next) => {
         };
 
         await file.saveRules(_rules);
-
+*/
         res.json({ success: true });
     } catch (err) {
         res.json({ success: false });

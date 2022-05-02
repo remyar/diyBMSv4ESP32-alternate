@@ -4,49 +4,28 @@ const file = require('../file');
 const Controller = require('../controller');
 
 router.get('/', async (req, res, next) => {
-    try{
+    try {
         console.log(req);
-    }catch(err){
+    } catch (err) {
 
     }
 });
 
 router.post('/', async (req, res, next) => {
-    try{
-        await file.saveBankConfiguration(req.body);
-        let _sett = await file.readBankConfiguration();
-        let globalSettings =  await file.readGlobalSettings();
-        for ( let i = 0 ; i < global.Controllers.length ; i++){
-            await global.Controllers[i].close();
+    try {
+        let _sett = req.body;
+
+        for (let i = 0; i < global.Controllers.length ; i++) {
+            await global.Controllers[i].controllerSetSettings({ 
+                totalBanks: _sett["totalBanks_" + i], 
+                totalSeriesModules: _sett["totalSeriesModules_" + i], 
+                BypassOverTempShutdown: _sett['BypassOverTempShutdown_' + i], 
+                BypassThresholdmV: _sett['BypassThresholdmV_' + i] 
+            });
         }
-
-        global.Controllers = [];
-        
-        for ( let i = 0 ; i < parseInt(_sett.totalControllers) ; i++){
-            let settings = {
-                baudrate : _sett["baudrate_"+i],
-                totalBanks : _sett["totalBanks_"+i],
-                totalSeriesModules : _sett["totalSeriesModules_"+i],
-                port : _sett["port_"+i],
-                BypassOverTempShutdown : globalSettings['BypassOverTempShutdown_' + i ],
-                BypassThresholdmV : globalSettings['BypassThresholdmV_'+i]
-            }
-            global.Controllers.push(new Controller(settings));
-
-        }
-
-        for ( let j = 0 ; j < global.Controllers.length ; j++){
-            try {
-                await global.Controllers[j].open();
-                await global.Controllers[j].controllerSetSettings();
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        
-        res.json({success : true});
-    }catch(err){
-        res.json({success : false});
+        res.json({ success: true });
+    } catch (err) {
+        res.json({ success: false });
     }
 });
 

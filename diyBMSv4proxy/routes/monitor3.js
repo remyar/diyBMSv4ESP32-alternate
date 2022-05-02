@@ -5,12 +5,12 @@ const file = require('../file');
 router.get('/', async (req, res, next) => {
     let obj = {};
     try{
-        let settings = await file.readSettings();
         obj.controllers = [];
+        for ( let i = 0 ; i < global.Controllers.length ; i++ ){
 
-        for ( let i = 0 ; i < settings.totalControllers ; i++ ){
+            let _c = global.Controllers[i];
 
-            let totalModules = settings["totalNumberOfBanks_" + i] * settings["totalNumberOfSeriesModules_" + i];
+            let totalModules = _c.totalBanks * _c.totalSeriesModules;
 
             let _ctrl = {
                 badpacket : [],

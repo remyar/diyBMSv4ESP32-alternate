@@ -143,9 +143,9 @@ function Modules(props) {
                         </tbody>
                     </table>
                 </div>);
-                _retValComp.push(<GlobalSettings idxController={n} onClick={(BypassOverTempShutdown, BypassThresholdmV) => {
+               {/* _retValComp.push(<GlobalSettings idxController={n} onClick={(BypassOverTempShutdown, BypassThresholdmV) => {
                     props.dispatch(actionsBms.setGlobalSettings({ moduleId : n , BypassOverTempShutdown, BypassThresholdmV }));
-                }} />);
+                }} />);*/}
             }
             return _retValComp;
         })()}

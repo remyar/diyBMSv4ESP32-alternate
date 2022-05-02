@@ -102,8 +102,8 @@ function Rules(props) {
                                         <td className="relayset">
                                             <select id="defaultrelay1" name="defaultrelay1" defaultValue={(() => {
                                                 var relay_value = "X";
-                                                if (_rules["relaydefault_"+n][0] === true || _rules["relaydefault_"+n][0] === 'On') { relay_value = "On"; }
-                                                if (_rules["relaydefault_"+n][0] === false || _rules["relaydefault_"+n][0] === 'Off') { relay_value = "Off"; }
+                                                if (_rules["relaydefault_"+n][0] === 0xFF || _rules["relaydefault_"+n][0] === true || _rules["relaydefault_"+n][0] === 'On') { relay_value = "On"; }
+                                                if (_rules["relaydefault_"+n][0] === 0x99 || _rules["relaydefault_"+n][0] === false || _rules["relaydefault_"+n][0] === 'Off') { relay_value = "Off"; }
                                                 return relay_value;
                                             })()}
                                                 onChange={(event) => {
@@ -116,8 +116,8 @@ function Rules(props) {
                                             </select>
                                             <select id="defaultrelay2" name="defaultrelay2" defaultValue={(() => {
                                                 var relay_value = "X";
-                                                if (_rules["relaydefault_"+n][1] === true || _rules["relaydefault_"+n][1] === 'On') { relay_value = "On"; }
-                                                if (_rules["relaydefault_"+n][1] === false || _rules["relaydefault_"+n][1] === 'Off') { relay_value = "Off"; }
+                                                if (_rules["relaydefault_"+n][1] === 0xFF || _rules["relaydefault_"+n][1] === true || _rules["relaydefault_"+n][1] === 'On') { relay_value = "On"; }
+                                                if (_rules["relaydefault_"+n][1] === 0x99 || _rules["relaydefault_"+n][1] === false || _rules["relaydefault_"+n][1] === 'Off') { relay_value = "Off"; }
                                                 return relay_value;
                                             })()}
                                                 onChange={(event) => {
@@ -130,8 +130,8 @@ function Rules(props) {
                                             </select>
                                             <select id="defaultrelay3" name="defaultrelay3" defaultValue={(() => {
                                                 var relay_value = "X";
-                                                if (_rules["relaydefault_"+n][2] === true || _rules["relaydefault_"+n][2] === 'On') { relay_value = "On"; }
-                                                if (_rules["relaydefault_"+n][2] === false|| _rules["relaydefault_"+n][2] === 'Off') { relay_value = "Off"; }
+                                                if (_rules["relaydefault_"+n][2] === 0xFF || _rules["relaydefault_"+n][2] === true || _rules["relaydefault_"+n][2] === 'On') { relay_value = "On"; }
+                                                if (_rules["relaydefault_"+n][2] === 0x99 || _rules["relaydefault_"+n][2] === false|| _rules["relaydefault_"+n][2] === 'Off') { relay_value = "Off"; }
                                                 return relay_value;
                                             })()}
                                                 onChange={(event) => {
@@ -173,8 +173,8 @@ function Rules(props) {
                             obj["rule_" + n + "_" + idx + "_hysteresis"] = rule.hysteresis;
                             rule.relays.forEach((relay, _idx) => {
                                 let relay_value = "X";
-                                if ((relay === "On") || (relay == true)) { relay_value = "On"; }
-                                if ((relay === "Off") || (relay == false)) { relay_value = "Off"; }
+                                if ((relay === "On") || (relay === true)) { relay_value = "On"; }
+                                if ((relay === "Off") || (relay === false)) { relay_value = "Off"; }
                                 obj["rule_" + n + "_" + idx + "_relay_" + (_idx + 1)] = relay_value;
                             });
                         });

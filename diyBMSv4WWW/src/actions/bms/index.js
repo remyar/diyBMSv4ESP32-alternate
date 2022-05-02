@@ -7,6 +7,7 @@ import getStorage from "./get.storage";
 import getSettings from "./get.settings";
 import setGlobalSettings from "./set.globalSettings";
 import setBankSettings from "./set.bankSettings";
+import getBankSettings from "./get.bankSettings";
 import setModuleSettings from "./set.moduleSettings";
 import setCounter from "./set.counter";
 import restartController from "./restartController";
@@ -31,6 +32,7 @@ export default {
     getStorage,
     setGlobalSettings,
     setBankSettings,
+    getBankSettings,
     setCounter,
     restartController,
     identifyModule,

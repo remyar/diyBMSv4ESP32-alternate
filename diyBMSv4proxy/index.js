@@ -5,22 +5,32 @@ var upload = multer();
 var file = require('./file');
 var Controller = require('./controller');
 const app = express();
+const { SerialPort } = require('serialport');
 
 global.Controllers = [];
-global.ControllersState = 0;
 
-async function loadControllerSettings() {
-    let _sett = await file.readBankConfiguration();
+async function scanAllControllers(){
+    let _ports = [];
+    if ( process.platform === "win32" ){
+        _ports = (await SerialPort.list()).filter((el) => el.friendlyName.includes("USB-SERIAL CH340"));
+    } else {
+        _ports.push({ path : "/dev/ttyUSB0" });
+    }
+
     global.Controllers = [];
-    for (let i = 0; i < _sett.totalControllers; i++) {
+    
+    for (let i = 0; i < _ports.length; i++) {
         let settings = {
-            baudrate: _sett["baudrate_" + i],
-            totalBanks: _sett["totalBanks_" + i],
-            totalSeriesModules: _sett["totalSeriesModules_" + i],
-            port: _sett["port_" + i],
+            baudrate : 9600,
+            port : _ports[i].path
         }
         global.Controllers.push(new Controller(settings));
     }
+
+    for (let i = 0; i < global.Controllers.length; i++) {
+        global.Controllers[i].open();
+    }
+
 }
 
 app.use(express.json())    // <==== parse request body as JSON
@@ -30,7 +40,10 @@ app.use(upload.array());
 
 app.use('/', cors(), require('./routes'));
 
-app.listen(3005, () => {
+app.listen(3005, async () => {
     console.log("Serveur à l'écoute");
-    loadControllerSettings();
+
+    await scanAllControllers();
+
+  //  loadControllerSettings();
 });
