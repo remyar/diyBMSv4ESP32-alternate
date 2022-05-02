@@ -53,8 +53,8 @@ function Home(props) {
                 let bankNumber = 0;
                 let cellsInBank = 0;
 
-                let minVoltage = 3.0;
-                let maxVoltage = 4.5;
+                let minVoltage = 2.9;
+                let maxVoltage = 4.3;
 
                 let bank = [];
                 let labels = [];

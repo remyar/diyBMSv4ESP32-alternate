@@ -8,9 +8,17 @@ router.get('/', async (req, res, next) => {
         let _sett = await file.readRules();
         _sett.timenow = new Date().getHours() * 60 + new Date().getMinutes();
 
-        for ( let i = 0 ; i < global.Controllers.length ; i++ ){
+        for (let i = 0; i < global.Controllers.length; i++) {
+            if (_sett["rules_" + i] == undefined) {
+                _sett["rules_" + i] = [..._sett["rules_0"]];
+            }
+            if (_sett["relaydefault_" + i] == undefined) {
+                _sett["relaydefault_" + i] = [..._sett["relaydefault_0"]];
+            }
+        }
+        for (let i = 0; i < global.Controllers.length; i++) {
             let _c = global.Controllers[i];
-            for ( let j = 0 ; j < _c.rule_outcome.length ; j++){
+            for (let j = 0; j < _c.rule_outcome.length; j++) {
                 _sett["rules_" + i][j].triggered = parseInt(_c.rule_outcome[j]) ? true : false;
             }
         }
@@ -35,6 +43,12 @@ router.post('/', async (req, res, next) => {
                 name += rule;
                 name += "_value";
 
+                if (_rules["rules_" + i] == undefined) {
+                    _rules["rules_" + i] = [];
+                }
+                if (_rules["rules_" + i][rule] == undefined) {
+                    _rules["rules_" + i][rule] = {};
+                }
                 _rules["rules_" + i][rule].value = req.body[name];
             }
         }
@@ -62,7 +76,9 @@ router.post('/', async (req, res, next) => {
                     name += rule;
                     name += "_relay_";
                     name += (j + 1);
-
+                    if (_rules["rules_" + i][rule].relays == undefined) {
+                        _rules["rules_" + i][rule].relays= [];
+                    }
                     _rules["rules_" + i][rule].relays[j] = req.body[name];
                 }
             }
@@ -74,11 +90,14 @@ router.post('/', async (req, res, next) => {
                 name += i;
                 name += "_";
                 name += j;
+                if (_rules["relaydefault_" + i] == undefined) {
+                    _rules["relaydefault_" + i] = [];
+                }
 
                 _rules['relaydefault_' + i][j] = req.body[name];
             }
         }
-        
+
         for (let j = 0; j < global.Controllers.length; j++) {
             try {
                 await global.Controllers[j].open();

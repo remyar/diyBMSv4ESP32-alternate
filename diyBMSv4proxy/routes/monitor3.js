@@ -6,11 +6,11 @@ router.get('/', async (req, res, next) => {
     let obj = {};
     try{
         let settings = await file.readSettings();
+        obj.controllers = [];
+
         for ( let i = 0 ; i < settings.totalControllers ; i++ ){
 
             let totalModules = settings["totalNumberOfBanks_" + i] * settings["totalNumberOfSeriesModules_" + i];
-
-            obj.controllers = [];
 
             let _ctrl = {
                 badpacket : [],

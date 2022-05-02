@@ -88,6 +88,7 @@ module.exports = {
 
                 settings["BypassOverTempShutdown_" + i] = globalSettings["BypassOverTempShutdown_" + i];
                 settings["BypassThresholdmV_" + i] = globalSettings["BypassThresholdmV_" + i];
+                settings["port_" + i] = controllersSettings["port_" + i];
             }
 
             settings.NTPServerName = "";

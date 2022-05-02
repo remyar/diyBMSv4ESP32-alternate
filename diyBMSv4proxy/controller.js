@@ -9,8 +9,8 @@ class Controller {
 
         this.totalSeriesModules = parseInt(settings.totalSeriesModules);
         this.totalBanks = parseInt(settings.totalBanks);
-        this.BypassOverTempShutdown = parseInt(settings.BypassOverTempShutdown);
-        this.BypassThresholdmV = parseInt(settings.BypassThresholdmV);
+        this.BypassOverTempShutdown = parseInt(settings.BypassOverTempShutdown) || 65;
+        this.BypassThresholdmV = parseInt(settings.BypassThresholdmV) || 4000;
 
         this.cmi = [];
         this.rule_outcome = [];
@@ -36,7 +36,9 @@ class Controller {
             message = message.replace("RVS", "");
             let _values = message.split(':');
             let cmiIdx = parseInt(_values[0]);
-
+            if ( cmiIdx == NaN || (cmiIdx > (this.totalSeriesModules * this.totalBanks))){
+                return;
+            }
             this.cmi[cmiIdx] = {
                 valid: parseInt(_values[1]) ? true : false,
                 voltagemV: parseInt(_values[2]),

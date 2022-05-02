@@ -6,7 +6,7 @@ router.get('/', async (req, res, next) => {
     let obj = {};
     try {
         let settings = await file.readSettings();
-         obj.controllers = [];
+        obj.controllers = [];
 
         for (let i = 0; i < settings.totalControllers; i++) {
 
@@ -28,20 +28,18 @@ router.get('/', async (req, res, next) => {
 
             for (let j = 0; j < totalModules; j++) {
 
-                global.Controllers.forEach(async (c) => {
-                    let cmi = c.cmi[j];
-                    if ( cmi ){
-                        _ctrl.voltages.push(cmi.valid ? cmi.voltagemV : null);
-                        _ctrl.minvoltages.push(cmi.valid ? cmi.voltagemVMin : null);
-                        _ctrl.maxvoltages.push(cmi.valid ? cmi.voltagemVMax : null);
-                        _ctrl.inttemp.push(cmi.valid ? cmi.internalTemp : null);
-                        _ctrl.exttemp.push(cmi.valid ? cmi.externalTemp : null);
-                        _ctrl.bypass.push(cmi.valid ? cmi.inBypass : null);
-                        _ctrl.bypasspwm.push(cmi.valid ? cmi.PWMValue : null);
-                        _ctrl.bypasshot.push(cmi.valid ? cmi.PWMValue : null);
-                    }
-                });
-
+                let c = global.Controllers[i];
+                let cmi = c.cmi[j];
+                if (cmi) {
+                    _ctrl.voltages.push(cmi.valid ? cmi.voltagemV : null);
+                    _ctrl.minvoltages.push(cmi.valid ? cmi.voltagemVMin : null);
+                    _ctrl.maxvoltages.push(cmi.valid ? cmi.voltagemVMax : null);
+                    _ctrl.inttemp.push(cmi.valid ? cmi.internalTemp : null);
+                    _ctrl.exttemp.push(cmi.valid ? cmi.externalTemp : null);
+                    _ctrl.bypass.push(cmi.valid ? cmi.inBypass : null);
+                    _ctrl.bypasspwm.push(cmi.valid ? cmi.PWMValue : null);
+                    _ctrl.bypasshot.push(cmi.valid ? cmi.PWMValue : null);
+                }
 
             }
 

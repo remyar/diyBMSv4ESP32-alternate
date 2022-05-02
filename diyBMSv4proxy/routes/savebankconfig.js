@@ -32,15 +32,18 @@ router.post('/', async (req, res, next) => {
                 BypassThresholdmV : globalSettings['BypassThresholdmV_'+i]
             }
             global.Controllers.push(new Controller(settings));
-            for ( let j = 0 ; j < global.Controllers.length ; j++){
-                try {
-                    await global.Controllers[j].open();
-                    await global.Controllers[j].controllerSetSettings();
-                } catch (err) {
-                    console.error(err);
-                }
-            };
+
         }
+
+        for ( let j = 0 ; j < global.Controllers.length ; j++){
+            try {
+                await global.Controllers[j].open();
+                await global.Controllers[j].controllerSetSettings();
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        
         res.json({success : true});
     }catch(err){
         res.json({success : false});

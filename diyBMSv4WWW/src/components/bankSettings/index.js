@@ -22,6 +22,7 @@ function BankSettings(props) {
             totalSeriesModules: settings["totalNumberOfSeriesModules_" + i],
             totalBanks: settings["totalNumberOfBanks_" + i],
             baudrate: settings["baudRate_" + i],
+            port : settings["port_" + i]
         })
     }
     const [totalControllers, setTotalControllers] = useState(initiateState);
