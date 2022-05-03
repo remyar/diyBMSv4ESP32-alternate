@@ -31,7 +31,7 @@ class Controller {
             console.log(err);
         });
 
-        this.RELAY_RULES = 8;
+        this.RELAY_RULES = 10;
         this.RELAY_TOTAL = 3;
     }
 
@@ -93,6 +93,12 @@ class Controller {
                 _valueIdx++;
             }
 
+        } else if (message.includes("GTIME")) {
+            let now = new Date();
+            let hours = now.getHours() * 60;
+            let minutes = now.getMinutes();
+            let secSinceMidnight = hours + minutes;
+            this.serialPortCom.write("[WTIME" + secSinceMidnight + "]");
         }
     }
     /*
@@ -245,13 +251,13 @@ class Controller {
             try {
                 if (this.serialPortCom.isOpen == false) {
                     await this.open();
-                } 
+                }
 
-                for (let i = 0; i < rules.rules.length; i++) {
+                for (let i = 0; i < this.RELAY_RULES; i++) {
                     let _r = rules.rules[i];
                     let str = ("[WCR" + i + ":" + _r.value + ":" + _r.hysteresis + ":");
 
-                    for (let j = 0; j < 4; j++) {
+                    for (let j = 0; j < this.RELAY_TOTAL; j++) {
                         let val = 0
                         if (_r.relays[j] == 'On') {
                             val = 0xFF;
@@ -259,7 +265,9 @@ class Controller {
                             val = 0x99;
                         }
                         str += ("" + val + "");
-                        str += (":");
+                        if ( j < (this.RELAY_TOTAL -1)){
+                            str += (":");
+                        }
                     }
                     str += "]";
                     this.serialPortCom.write(str);
@@ -273,14 +281,16 @@ class Controller {
                         val = 0xFF;
                     }
                     this.serialPortCom.write("" + val + "");
-                    this.serialPortCom.write(":");
+                    if ( i < (rules.relaydefault.length -1)){
+                        this.serialPortCom.write(":");
+                    }
                 }
                 this.serialPortCom.write("]");
                 await this.sleep(100);
                 await this.serialPortCom.write("[RRULES]");
-                await this.sleep(100);
+                await this.sleep(200);
                 resolve();
-    
+
             } catch (err) {
                 reject(err);
             }
