@@ -2,6 +2,15 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = {
+    getFilesInDataDirectory : async function (){
+        return new Promise((resolve, reject) => {
+            let p = path.resolve(__dirname , './data');
+
+            let files = fs.readdirSync(p);
+            resolve(files);
+        });
+    },
+
     read: async function (path) {
         return new Promise((resolve, reject) => {
             let data = fs.readFileSync(path, 'utf8');
@@ -38,8 +47,9 @@ module.exports = {
         }
         await this.save(path.resolve(__dirname, './globalsettings.json'), data);
     },
+
     readGlobalSettings: async function () {
-        let obj = { BypassOverTempShutdown_0: 65, BypassThresholdmV_0: 3000 };
+        let obj = { logging: false, frequency: 15 };
         try {
             let str = await this.read(path.resolve(__dirname, './globalsettings.json'));
             return JSON.parse(str);

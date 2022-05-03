@@ -21,11 +21,11 @@ function StoragePage(props) {
     return <div>
         <h1>Storage</h1>
         <div className="region">
-            <h2>SD Card</h2>
+            <h2>Storage</h2>
             <p id='sdcardmissing' className="warning" style={{ display: storage.sdcard?.available ? "none" : "block" }}>SD card not installed</p>
-            Used <span id="sdcard_used">{Number(storage.sdcard.used).toLocaleString()}</span>KiB (<span id="sdcard_used_percent">{((storage.sdcard.used / storage.sdcard.total) * 100).toFixed(1)}</span>%) of <span
-                id="sdcard_total">{Number(storage.sdcard.total).toLocaleString()}</span>KiB
-            <p>
+            Used <span id="sdcard_used">{Number(storage.sdcard?.used).toLocaleString()}</span> MB (<span id="sdcard_used_percent">{((storage.sdcard?.used / storage.sdcard?.total) * 100).toFixed(1)}</span>%) of <span
+                id="sdcard_total">{Number(storage.sdcard?.total).toLocaleString()}</span> MB
+           {/* <p>
                 <button style={{ cursor: 'pointer' }} type="button" id="unmount" onClick={() => {
                     props.dispatch(actionsBms.setSdUnmount()).then(() => {
 
@@ -42,9 +42,9 @@ function StoragePage(props) {
                         snackbar.success(intl.formatMessage({ id: "save.success" }));
                     });
                 }}>{intl.formatMessage({ id: "save.configuration" })}</button>
-            </p>
+            </p>*/}
             <ul id="sdcardfiles">
-                {storage.sdcard.files && storage.sdcard.files.map((file, index) => {
+                {storage.sdcard?.files && storage.sdcard?.files?.map((file, index) => {
                     return file && <li>
                         <a onClick={async () => {
                             let blob = await props.dispatch(actionsBms.getFile(file));
@@ -54,12 +54,12 @@ function StoragePage(props) {
                 })}
             </ul>
         </div>
-        <div className="region">
+       {/* <div className="region">
             <h2>Flash Memory</h2>
             <p>Used <span id="flash_used">{Number(storage.flash.used).toLocaleString()}</span>KiB (<span id="flash_used_percent">{((storage.flash.used / storage.flash.total) * 100).toFixed(1)}</span>%) of <span
                 id="flash_total">{Number(storage.flash.total).toLocaleString()}</span>KiB</p>
             <ul id="flashfiles"></ul>
-        </div>
+            </div> */}
         <div className="region">
             <h2>Logging</h2>
             <p id="b12">Cell data and output states can be stored as log files using an SD card.</p>

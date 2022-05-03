@@ -19,9 +19,15 @@ router.get('/', async (req, res, next) => {
             };
 
             for ( let j = 0 ; j < totalModules ; j++ ){
-                _ctrl.badpacket.push(0);
-                _ctrl.pktrecvd.push(0);
-                _ctrl.balcurrent.push(0);
+                if ( _c.cmi[j].valid == true ){
+                    _ctrl.balcurrent.push(_c.cmi[j].BalanceCurrentCount);
+                    _ctrl.pktrecvd.push(_c.cmi[j].PacketReceivedCount);
+                    _ctrl.badpacket.push(_c.cmi[j].badPacketCount);
+                } else {
+                    _ctrl.balcurrent.push("null");
+                    _ctrl.badpacket.push("null");
+                    _ctrl.pktrecvd.push("null");
+                }
             }
 
             obj.controllers.push(_ctrl);

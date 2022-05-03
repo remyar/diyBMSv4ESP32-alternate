@@ -16,6 +16,7 @@
     "express": "^4.17.1",
     "multer": "^1.4.4",
     "serialport": "^10.4.0",
+    "systeminformation": "^5.11.14",
     "uuid": "^8.3.2"
   }
 }
