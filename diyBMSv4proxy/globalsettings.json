@@ -1,1 +1,3 @@
-{"loggingEnabled":true,"loggingFrequencySeconds":15}
+
+{"logging":true,"frequency":15}
+

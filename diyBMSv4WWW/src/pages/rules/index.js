@@ -35,8 +35,8 @@ function Rules(props) {
         //{ label: "Current monitor under voltage (mV)", min: 1000, step: 100 },
         { label: "Pack over voltage (mV)", min: 1000, step: 100 },
         { label: "Pack under voltage (mV)", min: 1000, step: 100 },
-        //{ label: "Timer 2", min: 0, max: 1440, step: 1 },
-        //{ label: "Timer 1", min: 0, max: 1440, step: 1 },
+        { label: "Timer 2", min: 0, max: 1440, step: 1 },
+        { label: "Timer 1", min: 0, max: 1440, step: 1 },
     ];
 
     return <div className="page" id="rulesPage">
@@ -173,8 +173,8 @@ function Rules(props) {
                             obj["rule_" + n + "_" + idx + "_hysteresis"] = rule.hysteresis;
                             rule.relays.forEach((relay, _idx) => {
                                 let relay_value = "X";
-                                if ((relay === "On") || (relay === true)) { relay_value = "On"; }
-                                if ((relay === "Off") || (relay === false)) { relay_value = "Off"; }
+                                if ((relay === 0xFF) || (relay === "On") || (relay === true)) { relay_value = "On"; }
+                                if ((relay === 0x99) || (relay === "Off") || (relay === false)) { relay_value = "Off"; }
                                 obj["rule_" + n + "_" + idx + "_relay_" + (_idx + 1)] = relay_value;
                             });
                         });

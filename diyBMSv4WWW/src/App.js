@@ -43,6 +43,7 @@ function App(props) {
 
         let d = 0;
         const interval = setInterval(() => {
+            props.dispatch(actionsBms.getSettings());
             props.dispatch(actionsBms.getMonitor2());
             props.dispatch(actionsBms.getMonitor3());
             props.dispatch(actionsBms.getRules());

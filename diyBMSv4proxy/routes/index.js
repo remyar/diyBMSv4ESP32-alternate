@@ -13,5 +13,6 @@ router.use('/rules.json', require('./rules'));
 router.use('/saverules.json', require('./rules'));
 router.use('/storage.json', require('./storage'));
 router.use('/savestorage.json', require('./storage'));
+router.use('/download', require('./download'));
 
 module.exports = router;

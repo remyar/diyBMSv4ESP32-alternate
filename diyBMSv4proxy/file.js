@@ -2,20 +2,12 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = {
-    getDirectory: async function () {
+    getFilesInDataDirectory : async function (){
         return new Promise((resolve, reject) => {
+            let p = path.resolve(__dirname , './data');
 
-            const directoryPath = path.join(__dirname, './data');
-
-            fs.readdir(directoryPath, function (err, files) {
-                if (err) {
-                    reject('Unable to scan directory: ' + err);
-                    return;
-                }
- 
-                resolve(files);
-            });
-
+            let files = fs.readdirSync(p);
+            resolve(files);
         });
     },
 
@@ -55,8 +47,9 @@ module.exports = {
         }
         await this.save(path.resolve(__dirname, './globalsettings.json'), data);
     },
+
     readGlobalSettings: async function () {
-        let obj = { loggingEnabled: false, loggingFrequencySeconds: 15 };
+        let obj = { logging: false, frequency: 15 };
         try {
             let str = await this.read(path.resolve(__dirname, './globalsettings.json'));
             return JSON.parse(str);

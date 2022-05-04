@@ -7,6 +7,7 @@ var Controller = require('./controller');
 var logging = require('./logging');
 const app = express();
 const { SerialPort } = require('serialport');
+var logging = require('./logging');
 
 global.Controllers = [];
 global.logging = {
@@ -48,6 +49,7 @@ async function scanAllControllers() {
         global.Controllers[i].open();
     }
 
+    logging.init();
 }
 
 app.use(express.json())    // <==== parse request body as JSON

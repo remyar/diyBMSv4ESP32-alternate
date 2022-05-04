@@ -3,7 +3,6 @@ const router = express.Router();
 const file = require('../file');
 
 router.get('/', async (req, res, next) => {
-    let obj = {};
     let query = req.query;
     try {
         if ( global.Controllers.length > 0 && global.Controllers[query.c] != undefined){
